@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Filmes Famosos</string>
+    <string name="cd_movieMiniature">Movie Miniature</string>
 </resources>
