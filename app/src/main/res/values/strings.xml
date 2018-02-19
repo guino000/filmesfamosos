@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">Filmes Famosos</string>
     <string name="cd_movieMiniature">Movie Miniature</string>
+    <string name="miniature_width">120dp</string>
+    <string name="miniature_heigth">200dp</string>
+    <string name="menu_title_sort_popularity">Sort by popularity</string>
+    <string name="menu_title_sort_toprated">Sort by top rated</string>
+    <string name="general_error_message">An error has occurred!</string>
+    <string name="intentres_name_movie">movie</string>
+    <string name="date_short_date_format">yyyy/MM/dd</string>
+    <string name="movieapi_date_format">yyyy-MM-dd</string>
+    <string name="moviedetail_menu_release_date">Release date:&#160;</string>
+    <string name="moviedetail_menu_original_name">Original name:&#160;</string>
 </resources>

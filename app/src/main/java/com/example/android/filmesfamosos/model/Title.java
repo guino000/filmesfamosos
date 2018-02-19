@@ -1,10 +1,13 @@
 package com.example.android.filmesfamosos.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Gui on 2/15/2018.
  */
 
-public class Title {
+public class Title implements Parcelable{
     String mTitle;
     String mOriginalTitle;
 
@@ -13,6 +16,34 @@ public class Title {
         mOriginalTitle = originalTitle;
     }
 
+    protected Title(Parcel in) {
+        mTitle = in.readString();
+        mOriginalTitle = in.readString();
+    }
+
+    public static final Creator<Title> CREATOR = new Creator<Title>() {
+        @Override
+        public Title createFromParcel(Parcel in) {
+            return new Title(in);
+        }
+
+        @Override
+        public Title[] newArray(int size) {
+            return new Title[size];
+        }
+    };
+
     public String getTitle(){return mTitle;}
     public String getOriginalTitle(){return mOriginalTitle;}
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mTitle);
+        dest.writeString(mOriginalTitle);
+    }
 }

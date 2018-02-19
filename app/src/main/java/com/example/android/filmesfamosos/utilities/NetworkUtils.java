@@ -28,16 +28,18 @@ import java.util.Scanner;
  * These utilities will be used to communicate with the weather servers.
  */
 public final class NetworkUtils {
-
+    public static final String SORT_BY_POPULARITY = "popular";
+    public static final String SORT_BY_TOP_RATED = "top_rated";
     private static final String TAG = NetworkUtils.class.getSimpleName();
 
-    public static URL buildURL(String sorting, String apiKey) {
+    public static URL buildURL(String sorting, String page, String apiKey) {
         Uri.Builder builder = new Uri.Builder()
                 .scheme("https")
                 .authority("api.themoviedb.org")
                 .appendPath("3")
                 .appendPath("movie")
                 .appendPath(sorting)
+                .appendQueryParameter("page", page)
                 .appendQueryParameter("api_key",apiKey);
         try {
             return new URL(builder.build().toString());
