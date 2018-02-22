@@ -3,6 +3,7 @@ package com.example.android.filmesfamosos;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
@@ -39,8 +40,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private ProgressBar mLoadingBar;
     private TextView mErrorMessageTextView;
     private String mCurrentSortingMethod;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private EndlessRecyclerViewScrollListener mScrollListener;
-    public ArrayList<Movie> mMovieData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         mRvMiniaturesGrid = findViewById(R.id.rvMovies);
         RecyclerView.LayoutManager gridManager
-                = new GridLayoutManager(this, 3);
+                = new GridLayoutManager(this, 2);
         mRvMiniaturesGrid.setLayoutManager(gridManager);
         mRvMiniaturesGrid.setHasFixedSize(true);
 
@@ -63,10 +64,21 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mScrollListener = new EndlessRecyclerViewScrollListener((GridLayoutManager) gridManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                loadMovieData(mCurrentSortingMethod, String.valueOf(page));
+                loadMovieData(mCurrentSortingMethod, String.valueOf(page) + 1);
             }
         };
         mRvMiniaturesGrid.addOnScrollListener(mScrollListener);
+
+        mSwipeRefreshLayout = findViewById(R.id.sr_swipeRefreshMovies);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.secondaryColor);
+        mSwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        refreshMovieData();
+                    }
+                }
+        );
 
         mMovieAdapter.eraseMovieData();
         mScrollListener.resetState();
@@ -109,6 +121,18 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void refreshMovieData(){
+        mMovieAdapter.eraseMovieData();
+        mScrollListener.resetState();
+        if(!mCurrentSortingMethod.isEmpty()){
+            loadMovieData(mCurrentSortingMethod, "1");
+        }else{
+            mCurrentSortingMethod = NetworkUtils.SORT_BY_POPULARITY;
+            loadMovieData(mCurrentSortingMethod, "1");
+        }
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private void loadMovieData(String sortingMethod, String page){
@@ -157,17 +181,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 return parsedMovies;
             }catch (Exception e){
                 e.printStackTrace();
-                return null;
+                return new ArrayList<>();
             }
         }
 
         @Override
         protected void onPostExecute(ArrayList<Movie> movies) {
             setLoadingBarVisibility(false);
-            if(movies != null){
+            if(movies.size() > 0){
                 setErrorMessageVisibility(false);
                 mMovieAdapter.addMovieData(movies);
-            }else{
+            }else if (mMovieAdapter.getMovieData().size() == 0){
                 setErrorMessageVisibility(true);
             }
         }

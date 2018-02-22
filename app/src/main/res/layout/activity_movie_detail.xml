@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
     card_view:cardUseCompatPadding="true"
-    card_view:cardElevation="4dp">
+    card_view:cardElevation="4dp"
+    card_view:cardBackgroundColor="@color/cardViewBackColor">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -27,29 +28,37 @@
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
             android:layout_toRightOf="@id/iv_moviepicture"/>
 
-        <TextView
-            android:id="@+id/tv_movierating"
+        <LinearLayout
+            android:id="@+id/movie_rating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tv_movietitle"
             android:layout_toRightOf="@id/iv_moviepicture"
-            android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
-
-        <ImageView
-            android:id="@+id/img_rating_star"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
             android:layout_below="@id/tv_movietitle"
-            android:layout_toRightOf="@id/tv_movierating"
-            android:layout_centerVertical="true"
-            android:src="@drawable/ic_star_black_24dp" />
+            android:layout_centerHorizontal="true"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_movierating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
+
+            <ImageView
+                android:id="@+id/img_rating_star"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:tint="@color/white"
+                android:src="@drawable/ic_star_black_24dp" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tv_movie_releasedate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:layout_below="@id/tv_movierating"
+            android:layout_below="@id/movie_rating"
             android:layout_toRightOf="@id/iv_moviepicture"/>
 
         <TextView
