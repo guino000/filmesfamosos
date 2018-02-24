@@ -2,7 +2,9 @@ package com.example.android.filmesfamosos;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
+import android.os.PersistableBundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -48,20 +50,25 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Set layout components
         mLoadingBar = findViewById(R.id.pb_loading);
         mErrorMessageTextView = findViewById(R.id.tv_error_message);
-
         mRvMiniaturesGrid = findViewById(R.id.rvMovies);
-        RecyclerView.LayoutManager gridManager
-                = new GridLayoutManager(this, 2);
-        mRvMiniaturesGrid.setLayoutManager(gridManager);
+
+        //Set up Layout Manager
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mRvMiniaturesGrid.setLayoutManager(new GridLayoutManager(this, 2));
+        }else{
+            mRvMiniaturesGrid.setLayoutManager(new GridLayoutManager(this, 3));
+        }
         mRvMiniaturesGrid.setHasFixedSize(true);
 
+        //Set up Adapter to Recycler View
         mMovieAdapter = new MovieAdapter(this);
         mRvMiniaturesGrid.setAdapter(mMovieAdapter);
         mRvMiniaturesGrid.setVisibility(View.VISIBLE);
 
-        mScrollListener = new EndlessRecyclerViewScrollListener((GridLayoutManager) gridManager) {
+        mScrollListener = new EndlessRecyclerViewScrollListener((GridLayoutManager) mRvMiniaturesGrid.getLayoutManager()) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 loadMovieData(mCurrentSortingMethod, String.valueOf(page) + 1);
@@ -80,10 +87,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 }
         );
 
-        mMovieAdapter.eraseMovieData();
-        mScrollListener.resetState();
-        mCurrentSortingMethod = NetworkUtils.SORT_BY_POPULARITY;
-        loadMovieData(mCurrentSortingMethod, "1");
+        if(mMovieAdapter.getMovieData().size() == 0) {
+            mMovieAdapter.eraseMovieData();
+            mScrollListener.resetState();
+            mCurrentSortingMethod = NetworkUtils.SORT_BY_POPULARITY;
+            loadMovieData(mCurrentSortingMethod, "1");
+        }
     }
 
     @Override
@@ -121,6 +130,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
     }
 
     private void refreshMovieData(){
@@ -167,6 +181,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         @Override
         protected ArrayList<Movie> doInBackground(String... params) {
             if(params.length == 0){
+                return null;
+            }
+
+            if(!NetworkUtils.isOnline(getApplicationContext())){
                 return null;
             }
 
