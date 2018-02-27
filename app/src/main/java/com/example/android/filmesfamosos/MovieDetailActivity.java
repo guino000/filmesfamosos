@@ -15,12 +15,12 @@ import java.util.Date;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
-    ImageView mMoviePictureImageView;
-    TextView mMovieTitleTextView;
-    TextView mMovieOriginalTitleTextView;
-    TextView mMovieDescriptionTextView;
-    TextView mReleaseDateTextView;
-    TextView mMovieRatingTextView;
+    private ImageView mMoviePictureImageView;
+    private TextView mMovieTitleTextView;
+    private TextView mMovieOriginalTitleTextView;
+    private TextView mMovieDescriptionTextView;
+    private TextView mReleaseDateTextView;
+    private TextView mMovieRatingTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

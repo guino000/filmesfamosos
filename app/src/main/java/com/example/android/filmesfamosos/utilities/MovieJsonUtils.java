@@ -8,10 +8,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Gui on 2/15/2018.

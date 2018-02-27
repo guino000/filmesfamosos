@@ -8,9 +8,9 @@ import android.os.Parcelable;
  */
 
 public class Votes implements Parcelable{
-    long mVoteCount;
-    double mVoteAverage;
-    double mPopularity;
+    private long mVoteCount;
+    private double mVoteAverage;
+    private double mPopularity;
 
     public Votes(long voteCount, double voteAverage, double popularity){
         mVoteCount = voteCount;

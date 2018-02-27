@@ -1,7 +1,6 @@
 package com.example.android.filmesfamosos;
 
 import android.content.Context;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,9 +13,7 @@ import com.example.android.filmesfamosos.model.Movie;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Gui on 2/15/2018.

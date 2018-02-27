@@ -20,6 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:padding="15dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:text="@string/general_error_message"
             android:visibility="invisible"/>

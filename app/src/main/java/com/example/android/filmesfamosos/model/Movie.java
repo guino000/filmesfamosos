@@ -8,12 +8,12 @@ import android.os.Parcelable;
  */
 
 public class Movie implements Parcelable{
-    long mID;
-    Title mTitle;
-    String mPosterPath;
-    String mOverview;
-    String mReleaseDate;
-    Votes mVotes;
+    private long mID;
+    private Title mTitle;
+    private String mPosterPath;
+    private String mOverview;
+    private String mReleaseDate;
+    private Votes mVotes;
 
     public Movie(long id, Title title, String posterPath, String overview, Votes votes, String releaseDate){
         mID = id;

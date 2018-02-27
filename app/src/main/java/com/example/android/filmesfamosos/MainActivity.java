@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
-import android.os.PersistableBundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,26 +13,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.filmesfamosos.model.Movie;
 import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
 import com.example.android.filmesfamosos.utilities.NetworkUtils;
 
-import org.json.JSONException;
-
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.OptionalLong;
 
 public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
 
@@ -132,11 +120,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-    }
-
     private void refreshMovieData(){
         mMovieAdapter.eraseMovieData();
         mScrollListener.resetState();
@@ -195,8 +178,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             try{
                 String jsonMovieResponse = NetworkUtils
                         .getResponseFromHttpUrl(moviesRequestUrl);
-                ArrayList<Movie> parsedMovies = MovieJsonUtils.getMoviesFromJson(jsonMovieResponse);
-                return parsedMovies;
+                return MovieJsonUtils.getMoviesFromJson(jsonMovieResponse);
             }catch (Exception e){
                 e.printStackTrace();
                 return new ArrayList<>();
@@ -206,9 +188,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         @Override
         protected void onPostExecute(ArrayList<Movie> movies) {
             setLoadingBarVisibility(false);
-            if(movies.size() > 0){
-                setErrorMessageVisibility(false);
-                mMovieAdapter.addMovieData(movies);
+            if(movies != null){
+                if(movies.size() > 0) {
+                    setErrorMessageVisibility(false);
+                    mMovieAdapter.addMovieData(movies);
+                }else{
+                    setErrorMessageVisibility(true);
+                }
             }else if (mMovieAdapter.getMovieData().size() == 0){
                 setErrorMessageVisibility(true);
             }

@@ -8,8 +8,8 @@ import android.os.Parcelable;
  */
 
 public class Title implements Parcelable{
-    String mTitle;
-    String mOriginalTitle;
+    private String mTitle;
+    private String mOriginalTitle;
 
     public Title(String title, String originalTitle){
         mTitle = title;

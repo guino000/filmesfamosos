@@ -19,14 +19,16 @@
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
             android:paddingRight="10dp"
-            android:contentDescription="@string/cd_movieMiniature"/>
+            android:contentDescription="@string/cd_movieMiniature"
+            android:paddingEnd="10dp" />
 
         <TextView
             android:id="@+id/tv_movietitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-            android:layout_toRightOf="@id/iv_moviepicture"/>
+            android:layout_toRightOf="@id/iv_moviepicture"
+            android:layout_toEndOf="@id/iv_moviepicture" />
 
         <LinearLayout
             android:id="@+id/movie_rating"
@@ -36,7 +38,8 @@
             android:layout_below="@id/tv_movietitle"
             android:layout_centerHorizontal="true"
             android:gravity="center_horizontal"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_toEndOf="@id/iv_moviepicture">
 
             <TextView
                 android:id="@+id/tv_movierating"
@@ -50,7 +53,8 @@
                 android:layout_height="20dp"
                 android:layout_gravity="center"
                 android:tint="@color/white"
-                android:src="@drawable/ic_star_black_24dp" />
+                android:src="@drawable/ic_star_black_24dp"
+                android:contentDescription="rating star icon" />
         </LinearLayout>
 
         <TextView
@@ -59,7 +63,8 @@
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
             android:layout_below="@id/movie_rating"
-            android:layout_toRightOf="@id/iv_moviepicture"/>
+            android:layout_toRightOf="@id/iv_moviepicture"
+            android:layout_toEndOf="@id/iv_moviepicture" />
 
         <TextView
             android:id="@+id/tv_original_title"
@@ -68,7 +73,8 @@
             android:layout_below="@id/movie_rating"
             android:layout_toRightOf="@id/iv_moviepicture"
             android:paddingTop="15dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:layout_toEndOf="@id/iv_moviepicture" />
 
         <TextView
             android:id="@+id/tv_moviesdescription"
@@ -76,7 +82,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_original_title"
             android:layout_toRightOf="@id/iv_moviepicture"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:layout_toEndOf="@id/iv_moviepicture" />
 
     </RelativeLayout>
 </android.support.v7.widget.CardView>

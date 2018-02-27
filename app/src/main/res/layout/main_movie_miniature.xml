@@ -9,7 +9,7 @@
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/card_movie"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         card_view:cardElevation="4dp"
         card_view:cardUseCompatPadding="true"
         android:layout_gravity="center"
@@ -22,7 +22,7 @@
             <ImageView
                 android:id="@+id/iv_miniature_img"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="270dp"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/cd_movieMiniature"
                 android:scaleType="fitXY" />
