@@ -3,7 +3,6 @@ package com.example.android.filmesfamosos;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,13 +16,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.filmesfamosos.model.Movie;
-import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
+import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
+import com.example.android.filmesfamosos.utilities.MovieService;
 import com.example.android.filmesfamosos.utilities.NetworkUtils;
 
-import java.net.URL;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, AsyncTaskDelegate {
 
     private RecyclerView mRvMiniaturesGrid;
     private MovieAdapter mMovieAdapter;
@@ -56,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRvMiniaturesGrid.setAdapter(mMovieAdapter);
         mRvMiniaturesGrid.setVisibility(View.VISIBLE);
 
+        //Set Up Endless Scroll Listener
         mScrollListener = new EndlessRecyclerViewScrollListener((GridLayoutManager) mRvMiniaturesGrid.getLayoutManager()) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         };
         mRvMiniaturesGrid.addOnScrollListener(mScrollListener);
 
+        //Set up swipe refresh
         mSwipeRefreshLayout = findViewById(R.id.sr_swipeRefreshMovies);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.secondaryColor);
         mSwipeRefreshLayout.setOnRefreshListener(
@@ -75,10 +76,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 }
         );
 
-        if(mMovieAdapter.getMovieData().size() == 0) {
+        //Initialize data in case it's empty
+        if(mMovieAdapter.getMovieData().isEmpty()) {
             mMovieAdapter.eraseMovieData();
             mScrollListener.resetState();
-            mCurrentSortingMethod = NetworkUtils.SORT_BY_POPULARITY;
+            mCurrentSortingMethod = MovieService.SORT_BY_POPULARITY;
             loadMovieData(mCurrentSortingMethod, "1");
         }
     }
@@ -108,16 +110,29 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         switch (selectedItemID){
             case R.id.action_sort_popularity:
-                loadMovieData(NetworkUtils.SORT_BY_POPULARITY,"1");
-                mCurrentSortingMethod = NetworkUtils.SORT_BY_POPULARITY;
+                loadMovieData(MovieService.SORT_BY_POPULARITY,"1");
+                mCurrentSortingMethod = MovieService.SORT_BY_POPULARITY;
                 break;
             case R.id.action_sort_toprated :
-                loadMovieData(NetworkUtils.SORT_BY_TOP_RATED,"1");
-                mCurrentSortingMethod = NetworkUtils.SORT_BY_TOP_RATED;
+                loadMovieData(MovieService.SORT_BY_TOP_RATED,"1");
+                mCurrentSortingMethod = MovieService.SORT_BY_TOP_RATED;
                 break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void processFinish(Object output) {
+        ArrayList<Movie> movies = (ArrayList<Movie>) output;
+
+        setLoadingBarVisibility(false);
+        if(!movies.isEmpty()){
+            setErrorMessageVisibility(false);
+            mMovieAdapter.addMovieData(movies);
+        }else if (!mMovieAdapter.getMovieData().isEmpty()){
+            setErrorMessageVisibility(true);
+        }
     }
 
     private void refreshMovieData(){
@@ -126,14 +141,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if(!mCurrentSortingMethod.isEmpty()){
             loadMovieData(mCurrentSortingMethod, "1");
         }else{
-            mCurrentSortingMethod = NetworkUtils.SORT_BY_POPULARITY;
+            mCurrentSortingMethod = MovieService.SORT_BY_POPULARITY;
             loadMovieData(mCurrentSortingMethod, "1");
         }
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private void loadMovieData(String sortingMethod, String page){
-        new FetchMoviesTask().execute(sortingMethod, page);
+        if(NetworkUtils.isOnline(this)) {
+            setErrorMessageVisibility(false);
+            setLoadingBarVisibility(true);
+            new MovieService(this).execute(sortingMethod, page);
+        }else{
+            setErrorMessageVisibility(true);
+        }
     }
 
     private void setErrorMessageVisibility(boolean visible){
@@ -151,53 +172,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             mLoadingBar.setVisibility(View.VISIBLE);
         }else{
             mLoadingBar.setVisibility(View.INVISIBLE);
-        }
-    }
-
-    public class FetchMoviesTask extends AsyncTask<String, Void, ArrayList<Movie>>{
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            setLoadingBarVisibility(true);
-        }
-
-        @Override
-        protected ArrayList<Movie> doInBackground(String... params) {
-            if(params.length == 0){
-                return null;
-            }
-
-            if(!NetworkUtils.isOnline(getApplicationContext())){
-                return null;
-            }
-
-            String sorting = params[0];
-            String page = params[1];
-            URL moviesRequestUrl = NetworkUtils.buildURL(sorting, page, getString(R.string.themoviedb));
-
-            try{
-                String jsonMovieResponse = NetworkUtils
-                        .getResponseFromHttpUrl(moviesRequestUrl);
-                return MovieJsonUtils.getMoviesFromJson(jsonMovieResponse);
-            }catch (Exception e){
-                e.printStackTrace();
-                return new ArrayList<>();
-            }
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<Movie> movies) {
-            setLoadingBarVisibility(false);
-            if(movies != null){
-                if(movies.size() > 0) {
-                    setErrorMessageVisibility(false);
-                    mMovieAdapter.addMovieData(movies);
-                }else{
-                    setErrorMessageVisibility(true);
-                }
-            }else if (mMovieAdapter.getMovieData().size() == 0){
-                setErrorMessageVisibility(true);
-            }
         }
     }
 }

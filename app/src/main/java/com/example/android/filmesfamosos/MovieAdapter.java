@@ -16,13 +16,12 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 /**
- * Created by Gui on 2/15/2018.
+ * Created by Guilherme Canalli on 2/15/2018.
  */
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
 
     private ArrayList<Movie> mMovieData;
-    private int mCurrentPage;
     private final MovieAdapterOnClickHandler mClickHandler;
 
     public interface MovieAdapterOnClickHandler{
@@ -58,32 +57,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         }
     }
 
-    public void addMovieData(Movie movie){
-        mMovieData.add(movie);
-        notifyDataSetChanged();
-    }
-
     public void addMovieData(ArrayList<Movie> movieData){
         mMovieData.addAll(movieData);
-        notifyDataSetChanged();
-    }
-
-    public void setMovieData(ArrayList<Movie> movieData){
-        mMovieData = movieData;
         notifyDataSetChanged();
     }
 
     public void eraseMovieData(){
         mMovieData = new ArrayList<>();
         notifyDataSetChanged();
-    }
-
-    public int getCurrentPage(){
-        return mCurrentPage;
-    }
-
-    public void setCurrentPage(int page){
-        mCurrentPage = page;
     }
 
     public ArrayList<Movie> getMovieData(){

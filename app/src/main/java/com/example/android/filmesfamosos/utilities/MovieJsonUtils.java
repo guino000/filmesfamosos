@@ -12,12 +12,11 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 
 /**
- * Created by Gui on 2/15/2018.
+ * Created by Guilherme Canalli on 2/15/2018.
  */
 
 public final class MovieJsonUtils {
     public static ArrayList<Movie> getMoviesFromJson(String jsonString) throws JSONException {
-        final String PAGE = "page";
         final String TOTAL_PAGES = "total_pages";
         final String RESULTS = "results";
         final String ERROR_CODE = "cod";
@@ -47,7 +46,6 @@ public final class MovieJsonUtils {
             }
         }
 
-        long totalPages = moviesJson.getLong(TOTAL_PAGES);
         JSONArray moviesArray = moviesJson.getJSONArray(RESULTS);
 
         for(int i = 0; i < moviesArray.length(); i++){
@@ -55,18 +53,18 @@ public final class MovieJsonUtils {
             Movie movie = new Movie.MovieBuilder(
                     movieJsonObj.getLong(MOVIE_ID),
                     new Title(
-                            movieJsonObj.getString(MOVIE_TITLE),
-                            movieJsonObj.getString(MOVIE_ORIGINAL_TITLE)
+                            movieJsonObj.optString(MOVIE_TITLE),
+                            movieJsonObj.optString(MOVIE_ORIGINAL_TITLE)
                     ),
-                    POSTER_PATH_ROOT + movieJsonObj.getString(MOVIE_POSTER_PATH)
+                    POSTER_PATH_ROOT + movieJsonObj.optString(MOVIE_POSTER_PATH)
                     )
-                    .setOverview(movieJsonObj.getString(MOVIE_OVERVIEW))
+                    .setOverview(movieJsonObj.optString(MOVIE_OVERVIEW))
                     .setVotes(new Votes(
                             movieJsonObj.getLong(MOVIE_VOTE_AVERAGE),
                             movieJsonObj.getDouble(MOVIE_VOTE_AVERAGE),
                             movieJsonObj.getDouble(MOVIE_POPULARITY)
                     ))
-                    .setReleaseDate(movieJsonObj.getString(MOVIE_RELEASE_DATE))
+                    .setReleaseDate(movieJsonObj.optString(MOVIE_RELEASE_DATE))
                     .build();
             parsedMovies.add(movie);
         }
