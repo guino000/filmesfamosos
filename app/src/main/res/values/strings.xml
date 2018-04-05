@@ -10,4 +10,19 @@
     <string name="moviedetail_menu_release_date">Release date:&#160;</string>
     <string name="moviedetail_menu_original_name">Original name:&#160;</string>
     <string name="content_description_star_drawable">Rating star icon</string>
+
+    <!--Dummy data strings for movie details activity-->
+    <string name="dummy_movie_description">
+        Lorem ipsum dolor sit amet,
+        consectetur adipiscing elit. Sed scelerisque eleifend turpis, sed placerat velit sodales at.
+        Nunc neque risus, commodo vitae imperdiet vel, interdum nec eros.
+        Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
+        Fusce mattis fermentum lacinia. Nam accumsan metus in massa posuere sollicitudin.
+        Nullam sit amet rutrum lorem. Quisque auctor scelerisque scelerisque.
+        Pellentesque pretium arcu sit amet nibh maximus, vel tincidunt nisl maximus. Proin ac ante sapien.
+        Donec convallis dolor vehicula mi blandit suscipit. Duis quis felis sapien.
+        Maecenas ullamcorper turpis quam, in vestibulum leo tincidunt ac.
+        Sed nec eleifend sapien. Morbi volutpat euismod ultricies.
+        In varius felis vehicula orci luctus ultrices.
+    </string>
 </resources>
