@@ -11,18 +11,17 @@
     <string name="moviedetail_menu_original_name">Original name:&#160;</string>
     <string name="content_description_star_drawable">Rating star icon</string>
 
+    <!--Movie Detail Activity Strings-->
+    <string name="movie_release_date_label">Release Date:</string>
+    <string name="movie_original_title_label">Original Title:</string>
+    <string name="movie_trailers_label">Trailers</string>
+
     <!--Dummy data strings for movie details activity-->
+    <string name="dummy_movie_title">Movie Title</string>
+    <string name="dummy_movie_original_title">Movie Original Title</string>
+    <string name="dummy_movie_release_date">04/06/2018</string>
+    <string name="dummy_movie_stars">5.0</string>
     <string name="dummy_movie_description">
-        Lorem ipsum dolor sit amet,
-        consectetur adipiscing elit. Sed scelerisque eleifend turpis, sed placerat velit sodales at.
-        Nunc neque risus, commodo vitae imperdiet vel, interdum nec eros.
-        Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
-        Fusce mattis fermentum lacinia. Nam accumsan metus in massa posuere sollicitudin.
-        Nullam sit amet rutrum lorem. Quisque auctor scelerisque scelerisque.
-        Pellentesque pretium arcu sit amet nibh maximus, vel tincidunt nisl maximus. Proin ac ante sapien.
-        Donec convallis dolor vehicula mi blandit suscipit. Duis quis felis sapien.
-        Maecenas ullamcorper turpis quam, in vestibulum leo tincidunt ac.
-        Sed nec eleifend sapien. Morbi volutpat euismod ultricies.
-        In varius felis vehicula orci luctus ultrices.
+        Aenean nulla mi, euismod sit amet lacinia et, bibendum eget ex. Morbi cursus consequat orci, eu laoreet sapien feugiat viverra. Praesent non urna pellentesque, gravida diam ac, maximus lacus. Ut vehicula condimentum luctus. Phasellus sed finibus dui. Nulla sollicitudin fermentum ante ac fermentum. Curabitur ac fermentum risus, nec pretium tellus.
     </string>
 </resources>

@@ -4,8 +4,8 @@
     <color name="primaryDarkColor">#008e76</color>
     <color name="secondaryColor">#e64a19</color>
     <color name="secondaryLightColor">#ff7d47</color>
-    <color name="primaryTextColor">#ffffff</color>
+    <color name="primaryTextColor">#EEEEEE</color>
     <color name="backgroundColor">#263238</color>
     <color name="cardViewBackColor">#37474F</color>
-    <color name="white">#FFFFFF</color>
+    <color name="white">#EEEEEE</color>
 </resources>
