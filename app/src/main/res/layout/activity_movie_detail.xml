@@ -73,7 +73,6 @@
                     android:id="@+id/tv_movierating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -94,10 +93,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    app:layout_constraintBottom_toTopOf="@+id/tv_release_date_label"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/tv_release_date_label"
                     app:layout_constraintStart_toEndOf="@+id/tv_release_date_label"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_release_date_label"
                     tools:text="@string/dummy_movie_release_date" />
 
                 <TextView
@@ -115,23 +113,33 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/tv_original_title_label"
                     app:layout_constraintStart_toEndOf="@+id/tv_original_title_label"
-                    app:layout_constraintTop_toTopOf="@+id/tv_original_title_label"
                     tools:text="@string/dummy_movie_original_title" />
 
                 <TextView
                     android:id="@+id/tv_moviesdescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-
                     android:layout_marginTop="8dp"
-                    android:textAppearance="@style/movie_description"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tv_original_title_label"
                     tools:text="@string/dummy_movie_description" />
 
+                <TextView
+                    android:id="@+id/tv_trailers_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/movie_trailers_label"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    app:layout_constraintStart_toStartOf="@+id/tv_moviesdescription"
+                    app:layout_constraintTop_toBottomOf="@+id/divider" />
+
                 <HorizontalScrollView
+                    android:id="@+id/trailers_scroll_view"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="16dp"
@@ -142,28 +150,9 @@
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/rv_trailers"
-                        android:orientation="horizontal"
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent">
-                        <android.support.constraint.ConstraintLayout
-                            android:id="@+id/layout_trailers"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent">
-
-                            <VideoView
-                                android:id="@+id/vv_trailer"
-                                android:layout_width="100dp"
-                                android:layout_height="100dp"
-                                android:layout_marginTop="8dp"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-                        </android.support.constraint.ConstraintLayout>
-                        <ProgressBar
-                            android:id="@+id/pb_trailer_loading"
-                            android:layout_width="50dp"
-                            android:layout_height="50dp"
-                            android:layout_gravity="center"
-                            android:visibility="invisible"/>
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
                     </android.support.v7.widget.RecyclerView>
                 </HorizontalScrollView>
 
@@ -179,15 +168,17 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tv_moviesdescription" />
 
-                <TextView
-                    android:id="@+id/tv_trailers_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="@string/movie_trailers_label"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-                    app:layout_constraintStart_toStartOf="@+id/tv_moviesdescription"
-                    app:layout_constraintTop_toBottomOf="@+id/divider" />
+                <ProgressBar
+                    android:id="@+id/pb_trailer_loading"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/trailers_scroll_view"
+                    app:layout_constraintHorizontal_bias="0.487"
+                    app:layout_constraintStart_toStartOf="@+id/trailers_scroll_view"
+                    app:layout_constraintTop_toTopOf="@+id/trailers_scroll_view" />
             </android.support.constraint.ConstraintLayout>
         </android.support.v7.widget.CardView>
     </android.support.constraint.ConstraintLayout>

@@ -5,8 +5,11 @@ import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -14,6 +17,7 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.example.android.filmesfamosos.adapters.TrailerAdapter;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.model.Movie;
 import com.example.android.filmesfamosos.model.Trailer;
@@ -40,6 +44,8 @@ public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskD
     private TextView mMovieDescriptionTextView;
     private TextView mReleaseDateTextView;
     private TextView mMovieRatingTextView;
+    private RecyclerView mTrailerRecyclerView;
+    private TrailerAdapter mTrailerAdapter;
     private ProgressBar mTrailerProgressBar;
 
     @Override
@@ -55,6 +61,16 @@ public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskD
         mReleaseDateTextView = findViewById(R.id.tv_movie_releasedate);
         mMovieRatingTextView = findViewById(R.id.tv_movierating);
         mTrailerProgressBar = findViewById(R.id.pb_trailer_loading);
+        mTrailerRecyclerView = findViewById(R.id.rv_trailers);
+
+//        Set recyclerView layout manager
+        mTrailerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mTrailerRecyclerView.setHasFixedSize(true);
+
+//        Set recyclerView adapter
+        mTrailerAdapter = new TrailerAdapter();
+        mTrailerRecyclerView.setAdapter(mTrailerAdapter);
+        mTrailerRecyclerView.setVisibility(View.VISIBLE);
 
 //        Process income intent with movie data
         Intent intentFromMain = getIntent();

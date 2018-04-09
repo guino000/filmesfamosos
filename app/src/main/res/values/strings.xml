@@ -16,6 +16,9 @@
     <string name="movie_original_title_label">Original Title:</string>
     <string name="movie_trailers_label">Trailers</string>
 
+    <!--Movie adapter class Strings-->
+    <string name="youtube_video_uri">https://www.youtube.com/embed</string>
+
     <!--Dummy data strings for movie details activity-->
     <string name="dummy_movie_title">Movie Title</string>
     <string name="dummy_movie_original_title">Movie Original Title</string>
@@ -24,4 +27,7 @@
     <string name="dummy_movie_description">
         Aenean nulla mi, euismod sit amet lacinia et, bibendum eget ex. Morbi cursus consequat orci, eu laoreet sapien feugiat viverra. Praesent non urna pellentesque, gravida diam ac, maximus lacus. Ut vehicula condimentum luctus. Phasellus sed finibus dui. Nulla sollicitudin fermentum ante ac fermentum. Curabitur ac fermentum risus, nec pretium tellus.
     </string>
+
+    <!--Dummy String for trailer miniature layout-->
+    <string name="dummy_trailer_name">Trailer 1</string>
 </resources>

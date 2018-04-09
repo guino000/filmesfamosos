@@ -1,4 +1,4 @@
-package com.example.android.filmesfamosos;
+package com.example.android.filmesfamosos.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.android.filmesfamosos.R;
 import com.example.android.filmesfamosos.model.Movie;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
