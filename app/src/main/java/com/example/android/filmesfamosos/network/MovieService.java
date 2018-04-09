@@ -1,4 +1,4 @@
-package com.example.android.filmesfamosos.utilities;
+package com.example.android.filmesfamosos.network;
 
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -6,6 +6,8 @@ import android.os.AsyncTask;
 import com.example.android.filmesfamosos.R;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.model.Movie;
+import com.example.android.filmesfamosos.utilities.App;
+import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -26,7 +28,7 @@ public class MovieService extends AsyncTask<String, Void, List<Movie>>{
     public static final String SORT_BY_POPULARITY = "popular";
     public static final String SORT_BY_TOP_RATED = "top_rated";
 
-    private AsyncTaskDelegate delegate = null;
+    private AsyncTaskDelegate delegate;
 
     public MovieService(AsyncTaskDelegate responder){
         this.delegate = responder;
@@ -44,7 +46,7 @@ public class MovieService extends AsyncTask<String, Void, List<Movie>>{
         URL moviesRequestUrl = buildURL(sorting, page, apiKey);
 
         try{
-            String jsonMovieResponse = getResponseFromHttpUrl(moviesRequestUrl);
+            String jsonMovieResponse = NetworkService.getResponseFromHttpUrl(moviesRequestUrl);
             return MovieJsonUtils.getMoviesFromJson(jsonMovieResponse);
         }catch (Exception e){
             e.printStackTrace();
@@ -75,19 +77,6 @@ public class MovieService extends AsyncTask<String, Void, List<Movie>>{
         }catch (MalformedURLException e) {
             e.printStackTrace();
             return  null;
-        }
-    }
-
-    private static String getResponseFromHttpUrl(URL url) throws IOException {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        Response response = client.newCall(request).execute();
-        if(response.body() != null) {
-            return response.body().string();
-        }else{
-            return "";
         }
     }
 }

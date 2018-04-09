@@ -17,7 +17,8 @@ import android.widget.TextView;
 
 import com.example.android.filmesfamosos.model.Movie;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
-import com.example.android.filmesfamosos.utilities.MovieService;
+import com.example.android.filmesfamosos.network.MovieService;
+import com.example.android.filmesfamosos.network.TrailerService;
 import com.example.android.filmesfamosos.utilities.NetworkUtils;
 
 import java.util.ArrayList;
