@@ -8,6 +8,6 @@ package com.example.android.filmesfamosos.interfaces;
  *    Availability: https://gist.github.com/dhiegoabrantes/7933078edf4ccb05f2de2bf3fca17ed0
  ***************************************************************************************/
 
-public interface AsyncTaskDelegate {
-    void processFinish(Object output);
+public interface AsyncTaskDelegate<T> {
+    void processFinish(T output);
 }

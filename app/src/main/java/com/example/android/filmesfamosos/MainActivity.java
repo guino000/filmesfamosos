@@ -22,9 +22,11 @@ import com.example.android.filmesfamosos.network.TrailerService;
 import com.example.android.filmesfamosos.utilities.NetworkUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, AsyncTaskDelegate {
-
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, AsyncTaskDelegate<List<Movie>> {
+//    member Variables
+    private MovieService mMovieServiceLoaderCallbacks;
     private RecyclerView mRvMiniaturesGrid;
     private MovieAdapter mMovieAdapter;
     private ProgressBar mLoadingBar;
@@ -32,6 +34,9 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private String mCurrentSortingMethod;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private EndlessRecyclerViewScrollListener mScrollListener;
+
+//    Loader ID
+    private final static int ID_MOVIE_LOADER = 11;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +47,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mLoadingBar = findViewById(R.id.pb_loading);
         mErrorMessageTextView = findViewById(R.id.tv_error_message);
         mRvMiniaturesGrid = findViewById(R.id.rvMovies);
+
+//        Initialize configurations
+        if(mCurrentSortingMethod == null)
+            mCurrentSortingMethod = MovieService.SORT_BY_POPULARITY;
 
         //Set up Layout Manager
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -81,9 +90,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if(mMovieAdapter.getMovieData().isEmpty()) {
             mMovieAdapter.eraseMovieData();
             mScrollListener.resetState();
-            mCurrentSortingMethod = MovieService.SORT_BY_POPULARITY;
-            loadMovieData(mCurrentSortingMethod, "1");
         }
+
+//        Initialize Movies LoaderCallbacks
+        mMovieServiceLoaderCallbacks = new MovieService(this, this);
+        loadMovieData(mCurrentSortingMethod, "1");
     }
 
     @Override
@@ -124,13 +135,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public void processFinish(Object output) {
-        ArrayList<Movie> movies = (ArrayList<Movie>) output;
-
+    public void processFinish(List<Movie> output) {
         setLoadingBarVisibility(false);
-        if(!movies.isEmpty()){
+        if(!output.isEmpty()){
             setErrorMessageVisibility(false);
-            mMovieAdapter.addMovieData(movies);
+            mMovieAdapter.addMovieData((ArrayList<Movie>) output);
         }else if (!mMovieAdapter.getMovieData().isEmpty()){
             setErrorMessageVisibility(true);
         }
@@ -139,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private void refreshMovieData(){
         mMovieAdapter.eraseMovieData();
         mScrollListener.resetState();
-        if(!mCurrentSortingMethod.isEmpty()){
+        if(mCurrentSortingMethod != null){
             loadMovieData(mCurrentSortingMethod, "1");
         }else{
             mCurrentSortingMethod = MovieService.SORT_BY_POPULARITY;
@@ -149,10 +158,25 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     private void loadMovieData(String sortingMethod, String page){
+//        Check internet connectivity
         if(NetworkUtils.isOnline(this)) {
             setErrorMessageVisibility(false);
             setLoadingBarVisibility(true);
-            new MovieService(this).execute(sortingMethod, page);
+
+//            Create bundle for loader
+            Bundle movieBundle = new Bundle();
+            movieBundle.putString(MovieService.KEY_SORTING_METHOD, sortingMethod);
+            movieBundle.putString(MovieService.KEY_PAGE, page);
+
+//           Initialize or restart loader
+            try{
+                if(getSupportLoaderManager().getLoader(ID_MOVIE_LOADER).isStarted())
+                    getSupportLoaderManager().restartLoader(ID_MOVIE_LOADER, movieBundle, mMovieServiceLoaderCallbacks);
+                else
+                    getSupportLoaderManager().initLoader(ID_MOVIE_LOADER, movieBundle, mMovieServiceLoaderCallbacks);
+            }catch (NullPointerException e){
+                getSupportLoaderManager().initLoader(ID_MOVIE_LOADER, movieBundle, mMovieServiceLoaderCallbacks);
+            }
         }else{
             setErrorMessageVisibility(true);
         }

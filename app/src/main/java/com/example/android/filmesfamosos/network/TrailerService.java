@@ -31,7 +31,7 @@ import java.util.List;
 //This class is used to get Trailers data of a given movie from the API
 public class TrailerService implements LoaderManager.LoaderCallbacks<List<Trailer>>{
     //    Keys
-    private static final String KEY_MOVIE_ID = "movie_id";
+    public static final String KEY_MOVIE_ID = "movie_id";
 
 //    Member variables
     private AsyncTaskDelegate delegate;
@@ -64,7 +64,7 @@ public class TrailerService implements LoaderManager.LoaderCallbacks<List<Traile
     @Override
     public Loader<List<Trailer>> onCreateLoader(int id, @Nullable final Bundle args) {
         return new android.support.v4.content.AsyncTaskLoader<List<Trailer>>(mContext) {
-            List<Trailer> mParsedTrailers;
+            List<Trailer> mParsedTrailers = Collections.emptyList();
 
             @Override
             protected void onStartLoading() {

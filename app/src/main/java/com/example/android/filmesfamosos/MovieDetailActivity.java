@@ -30,8 +30,8 @@ import java.util.List;
 
 public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskDelegate{
 //    Loader ID's
-    private static final int TRAILER_LOADER_ID = 1;
-    private static final int REVIEW_LOADER_ID = 2;
+    private static final int TRAILER_LOADER_ID = 21;
+    private static final int REVIEW_LOADER_ID = 22;
 
 //   Member variables
     private ImageView mMoviePictureImageView;
