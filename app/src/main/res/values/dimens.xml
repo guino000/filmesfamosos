@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--Dimensions for trailer miniature layout-->
-    <dimen name="trailer_miniature_height">112dp</dimen>
-    <dimen name="trailer_miniature_width">168dp</dimen>
+    <dimen name="trailer_miniature_height">32dp</dimen>
+    <dimen name="trailer_miniature_width">32dp</dimen>
     <dimen name="parent_padding">16dp</dimen>
 </resources>

@@ -59,6 +59,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     }
 
     public void addMovieData(ArrayList<Movie> movieData){
+        if(movieData == null)
+            return;
+
         mMovieData.addAll(movieData);
         notifyDataSetChanged();
     }

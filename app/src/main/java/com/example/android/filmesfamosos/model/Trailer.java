@@ -1,5 +1,7 @@
 package com.example.android.filmesfamosos.model;
 
+import android.net.Uri;
+
 public class Trailer {
     private String mId;
     private String mKey;

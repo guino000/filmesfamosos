@@ -11,13 +11,14 @@
     <string name="moviedetail_menu_original_name">Original name:&#160;</string>
     <string name="content_description_star_drawable">Rating star icon</string>
 
+    <!--Movie adapter class Strings-->
+    <string name="youtube_url">https://www.youtube.com/</string>
+
     <!--Movie Detail Activity Strings-->
     <string name="movie_release_date_label">Release Date:</string>
     <string name="movie_original_title_label">Original Title:</string>
     <string name="movie_trailers_label">Trailers</string>
-
-    <!--Movie adapter class Strings-->
-    <string name="youtube_video_uri">https://www.youtube.com/embed</string>
+    <string name="trailer_error_msg">Problem loading trailers!</string>
 
     <!--Dummy data strings for movie details activity-->
     <string name="dummy_movie_title">Movie Title</string>

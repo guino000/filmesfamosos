@@ -32,7 +32,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskDelegate{
+public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskDelegate<ArrayList<Trailer>>{
 //    Loader ID's
     private static final int TRAILER_LOADER_ID = 21;
     private static final int REVIEW_LOADER_ID = 22;
@@ -44,8 +44,10 @@ public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskD
     private TextView mMovieDescriptionTextView;
     private TextView mReleaseDateTextView;
     private TextView mMovieRatingTextView;
+    private TextView mTrailerErrorMsg;
     private RecyclerView mTrailerRecyclerView;
     private TrailerAdapter mTrailerAdapter;
+    private TrailerService mTrailerService;
     private ProgressBar mTrailerProgressBar;
 
     @Override
@@ -62,6 +64,7 @@ public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskD
         mMovieRatingTextView = findViewById(R.id.tv_movierating);
         mTrailerProgressBar = findViewById(R.id.pb_trailer_loading);
         mTrailerRecyclerView = findViewById(R.id.rv_trailers);
+        mTrailerErrorMsg = findViewById(R.id.tv_trailer_error_msg);
 
 //        Set recyclerView layout manager
         mTrailerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -92,9 +95,12 @@ public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskD
             }
             mMovieRatingTextView.setText(String.valueOf(
                     clickedMovie.getVotes().getVoteAverage()));
+
+//            Initialize trailer loader
+            mTrailerService = new TrailerService(this, this);
+            loadTrailerData(String.valueOf(clickedMovie.getId()));
         }
 
-//        TODO: Initialize the trailers Loader
 //        TODO: Initialize the reviews Loader
     }
 
@@ -106,15 +112,42 @@ public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskD
             mTrailerProgressBar.setVisibility(View.INVISIBLE);
     }
 
-    @Override
-    public void processFinish(Object output) {
-        ArrayList<Trailer> trailers = (ArrayList<Trailer>) output;
+//    Control visibility of trailer error message
+    private void setTrailerErrorMsgVisibility(boolean visible){
+        if(visible)
+            mTrailerErrorMsg.setVisibility(View.VISIBLE);
+        else
+            mTrailerErrorMsg.setVisibility(View.INVISIBLE);
+    }
 
+    private void loadTrailerData(String movieID){
+        setTrailerErrorMsgVisibility(false);
+        setTrailerProgressbarVisibility(true);
+
+//        Create bundle for loader
+        Bundle trailerBundle = new Bundle();
+        trailerBundle.putString(TrailerService.KEY_MOVIE_ID, movieID);
+
+//        Initialize or restart loader
+        try{
+            if(getSupportLoaderManager().getLoader(TRAILER_LOADER_ID).isStarted())
+                getSupportLoaderManager().restartLoader(TRAILER_LOADER_ID, trailerBundle, mTrailerService);
+            else
+                getSupportLoaderManager().initLoader(TRAILER_LOADER_ID, trailerBundle, mTrailerService);
+        }catch (NullPointerException e){
+            getSupportLoaderManager().initLoader(TRAILER_LOADER_ID, trailerBundle, mTrailerService);
+        }
+    }
+
+    @Override
+    public void processFinish(ArrayList<Trailer> newTrailers) {
         setTrailerProgressbarVisibility(false);
-        if(!trailers.isEmpty()){
-// TODO: Add parsed trailers to the trailer adapter
+        if(!newTrailers.isEmpty()){
+            ArrayList<Trailer> currentTrailers = mTrailerAdapter.getTrailerData();
+            currentTrailers.addAll(newTrailers);
+            mTrailerAdapter.setTrailerData(currentTrailers);
         }else{
-//TODO: Show an error message on the trailers layout if nothing was parsed
+            setTrailerErrorMsgVisibility(true);
         }
     }
 }
