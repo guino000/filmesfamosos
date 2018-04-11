@@ -137,6 +137,18 @@
                     app:layout_constraintStart_toStartOf="@+id/tv_moviesdescription"
                     app:layout_constraintTop_toBottomOf="@+id/divider" />
 
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="8dp"
+                    android:background="?android:attr/listDivider"
+                    android:visibility="visible"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="1.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_moviesdescription" />
+
                 <ScrollView
                     android:id="@+id/trailers_scroll_view"
                     android:layout_width="0dp"
@@ -151,25 +163,13 @@
                         android:layout_height="wrap_content" />
                 </ScrollView>
 
-                <View
-                    android:id="@+id/divider"
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="8dp"
-                    android:background="?android:attr/listDivider"
-                    android:visibility="visible"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_moviesdescription" />
-
                 <ProgressBar
                     android:id="@+id/pb_trailer_loading"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
                     android:layout_gravity="center"
                     android:visibility="invisible"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@+id/trailers_scroll_view"
                     app:layout_constraintEnd_toEndOf="@+id/trailers_scroll_view"
                     app:layout_constraintHorizontal_bias="0.487"
                     app:layout_constraintStart_toStartOf="@+id/trailers_scroll_view"
@@ -183,11 +183,61 @@
                     android:text="@string/trailer_error_msg"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                     android:visibility="invisible"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@+id/trailers_scroll_view"
                     app:layout_constraintEnd_toEndOf="@+id/trailers_scroll_view"
                     app:layout_constraintHorizontal_bias="0.487"
                     app:layout_constraintStart_toStartOf="@+id/trailers_scroll_view"
                     app:layout_constraintTop_toTopOf="@+id/trailers_scroll_view" />
+
+                <TextView
+                    android:id="@+id/tv_reviews_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/movie_reviews_label"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    app:layout_constraintStart_toStartOf="@+id/trailers_scroll_view"
+                    app:layout_constraintTop_toBottomOf="@+id/trailers_scroll_view" />
+
+                <ScrollView
+                    android:id="@+id/reviews_scroll_view"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/tv_reviews_label"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_reviews_label">
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/rv_reviews"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </ScrollView>
+
+                <ProgressBar
+                    android:id="@+id/pb_reviews_loading"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/reviews_scroll_view"
+                    app:layout_constraintHorizontal_bias="0.487"
+                    app:layout_constraintStart_toStartOf="@+id/reviews_scroll_view"
+                    app:layout_constraintTop_toTopOf="@+id/reviews_scroll_view" />
+
+                <TextView
+                    android:id="@+id/tv_reviews_error_msg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/trailer_error_msg"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                    android:visibility="invisible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/reviews_scroll_view"
+                    app:layout_constraintHorizontal_bias="0.487"
+                    app:layout_constraintStart_toStartOf="@+id/reviews_scroll_view"
+                    app:layout_constraintTop_toTopOf="@+id/reviews_scroll_view" />
             </android.support.constraint.ConstraintLayout>
         </android.support.v7.widget.CardView>
     </android.support.constraint.ConstraintLayout>

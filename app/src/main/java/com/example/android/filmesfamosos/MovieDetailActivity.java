@@ -102,7 +102,10 @@ public class MovieDetailActivity extends AppCompatActivity implements
             mTrailerService = new TrailerService(this, this);
             loadTrailerData(String.valueOf(clickedMovie.getId()));
         }
+//        TODO: Create reviews loader
+//        TODO: Create reviews adapter
 //        TODO: Initialize the reviews Loader
+//        TODO: Implement asynctaskdelegate listener to reviews
     }
 
     //    Control visibility of the trailers progress bar

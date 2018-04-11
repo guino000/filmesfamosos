@@ -13,21 +13,30 @@
 
     <!--Trailer class Strings-->
     <string name="youtube_url">http://www.youtube.com/watch?v=</string>
-    <string name="youtube_watch_url_path">watch</string>
-    <string name="youtube_video_url_parameter_key">v</string>
 
     <!--Movie Detail Activity Strings-->
     <string name="movie_release_date_label">Release Date:</string>
     <string name="movie_original_title_label">Original Title:</string>
     <string name="movie_trailers_label">Trailers</string>
     <string name="trailer_error_msg">Problem loading trailers!</string>
+    <string name="movie_reviews_label">Reviews</string>
+    <string name="reviews_error_msg">Problem loading reviews!</string>
 
-    <!--Dummy data strings for movie details activity-->
+    <!--Dummy strings for movie details activity-->
     <string name="dummy_movie_title">Movie Title</string>
     <string name="dummy_movie_original_title">Movie Original Title</string>
     <string name="dummy_movie_release_date">04/06/2018</string>
     <string name="dummy_movie_stars">5.0</string>
     <string name="dummy_movie_description">
+        Aenean nulla mi, euismod sit amet lacinia et, bibendum eget ex. Morbi cursus consequat orci,
+        eu laoreet sapien feugiat viverra. Praesent non urna pellentesque, gravida diam ac, maximus lacus.
+        Ut vehicula condimentum luctus. Phasellus sed finibus dui. Nulla sollicitudin fermentum ante ac fermentum.
+        Curabitur ac fermentum risus, nec pretium tellus.
+    </string>
+
+    <!--Dummy strings for review miniature layout-->
+    <string name="dummy_review_author_name">AuthorName</string>
+    <string name="dummy_review_content">
         Aenean nulla mi, euismod sit amet lacinia et, bibendum eget ex. Morbi cursus consequat orci,
         eu laoreet sapien feugiat viverra. Praesent non urna pellentesque, gravida diam ac, maximus lacus.
         Ut vehicula condimentum luctus. Phasellus sed finibus dui. Nulla sollicitudin fermentum ante ac fermentum.
