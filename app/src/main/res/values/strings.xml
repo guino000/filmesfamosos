@@ -11,8 +11,10 @@
     <string name="moviedetail_menu_original_name">Original name:&#160;</string>
     <string name="content_description_star_drawable">Rating star icon</string>
 
-    <!--Movie adapter class Strings-->
-    <string name="youtube_url">https://www.youtube.com/</string>
+    <!--Trailer class Strings-->
+    <string name="youtube_url">http://www.youtube.com/watch?v=</string>
+    <string name="youtube_watch_url_path">watch</string>
+    <string name="youtube_video_url_parameter_key">v</string>
 
     <!--Movie Detail Activity Strings-->
     <string name="movie_release_date_label">Release Date:</string>
@@ -26,7 +28,10 @@
     <string name="dummy_movie_release_date">04/06/2018</string>
     <string name="dummy_movie_stars">5.0</string>
     <string name="dummy_movie_description">
-        Aenean nulla mi, euismod sit amet lacinia et, bibendum eget ex. Morbi cursus consequat orci, eu laoreet sapien feugiat viverra. Praesent non urna pellentesque, gravida diam ac, maximus lacus. Ut vehicula condimentum luctus. Phasellus sed finibus dui. Nulla sollicitudin fermentum ante ac fermentum. Curabitur ac fermentum risus, nec pretium tellus.
+        Aenean nulla mi, euismod sit amet lacinia et, bibendum eget ex. Morbi cursus consequat orci,
+        eu laoreet sapien feugiat viverra. Praesent non urna pellentesque, gravida diam ac, maximus lacus.
+        Ut vehicula condimentum luctus. Phasellus sed finibus dui. Nulla sollicitudin fermentum ante ac fermentum.
+        Curabitur ac fermentum risus, nec pretium tellus.
     </string>
 
     <!--Dummy String for trailer miniature layout-->

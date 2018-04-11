@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.filmesfamosos.adapters.TrailerAdapter;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
@@ -32,7 +33,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskDelegate<ArrayList<Trailer>>{
+public class MovieDetailActivity extends AppCompatActivity implements
+        AsyncTaskDelegate<ArrayList<Trailer>>, TrailerAdapter.TrailerAdapterClickHandler{
 //    Loader ID's
     private static final int TRAILER_LOADER_ID = 21;
     private static final int REVIEW_LOADER_ID = 22;
@@ -71,7 +73,7 @@ public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskD
         mTrailerRecyclerView.setHasFixedSize(true);
 
 //        Set recyclerView adapter
-        mTrailerAdapter = new TrailerAdapter();
+        mTrailerAdapter = new TrailerAdapter(this);
         mTrailerRecyclerView.setAdapter(mTrailerAdapter);
         mTrailerRecyclerView.setVisibility(View.VISIBLE);
 
@@ -100,11 +102,10 @@ public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskD
             mTrailerService = new TrailerService(this, this);
             loadTrailerData(String.valueOf(clickedMovie.getId()));
         }
-
 //        TODO: Initialize the reviews Loader
     }
 
-//    Control visibility of the trailers progress bar
+    //    Control visibility of the trailers progress bar
     private void setTrailerProgressbarVisibility(boolean visible){
         if(visible)
             mTrailerProgressBar.setVisibility(View.VISIBLE);
@@ -143,11 +144,18 @@ public class MovieDetailActivity extends AppCompatActivity implements AsyncTaskD
     public void processFinish(ArrayList<Trailer> newTrailers) {
         setTrailerProgressbarVisibility(false);
         if(!newTrailers.isEmpty()){
-            ArrayList<Trailer> currentTrailers = mTrailerAdapter.getTrailerData();
-            currentTrailers.addAll(newTrailers);
-            mTrailerAdapter.setTrailerData(currentTrailers);
+            mTrailerAdapter.setTrailerData(newTrailers);
         }else{
             setTrailerErrorMsgVisibility(true);
+        }
+    }
+
+    @Override
+    public void onClick(Trailer clickedTrailer) {
+        Intent videoIntent = new Intent(Intent.ACTION_VIEW);
+        videoIntent.setData(clickedTrailer.getYoutubeURL(this));
+        if(videoIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(videoIntent);
         }
     }
 }

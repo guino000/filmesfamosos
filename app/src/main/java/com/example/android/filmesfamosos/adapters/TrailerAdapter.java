@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.example.android.filmesfamosos.R;
+import com.example.android.filmesfamosos.model.Movie;
 import com.example.android.filmesfamosos.model.Trailer;
 
 import java.net.URI;
@@ -19,12 +20,16 @@ import java.util.ArrayList;
 
 public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerAdapterViewHolder> {
 
-    private static final String YOUTUBE_WATCH_PATH = "watch";
-    private static final String YOUTUBE_VIDEO_PARAMETER = "v";
     private ArrayList<Trailer> mTrailerData;
+    private TrailerAdapterClickHandler mClickHandler;
 
-    public TrailerAdapter(){
+    public interface TrailerAdapterClickHandler{
+        void onClick(Trailer clickedTrailer);
+    }
+
+    public TrailerAdapter(TrailerAdapterClickHandler clickHandler){
         mTrailerData = new ArrayList<>();
+        mClickHandler = clickHandler;
     }
 
     public void setTrailerData(ArrayList<Trailer> trailerData){
@@ -66,7 +71,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerA
         return mTrailerData.size();
     }
 
-    public class TrailerAdapterViewHolder extends RecyclerView.ViewHolder{
+    public class TrailerAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         public final TextView mTrailerNameTextView;
         public Context mContext;
@@ -75,6 +80,14 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerA
             super(itemView);
             mTrailerNameTextView = itemView.findViewById(R.id.tv_trailer_miniature_name);
             mContext = context;
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            Trailer clickedTrailer = mTrailerData.get(position);
+            mClickHandler.onClick(clickedTrailer);
         }
     }
 }

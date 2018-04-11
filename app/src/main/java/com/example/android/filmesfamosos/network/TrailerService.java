@@ -21,6 +21,7 @@ import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class TrailerService implements LoaderManager.LoaderCallbacks<List<Traile
     private AsyncTaskDelegate delegate;
     private Context mContext;
 
-    public TrailerService(AsyncTaskDelegate responder, Context context){
+    public TrailerService(AsyncTaskDelegate<ArrayList<Trailer>> responder, Context context){
         this.delegate = responder;
         this.mContext = context;
     }
@@ -82,22 +83,22 @@ public class TrailerService implements LoaderManager.LoaderCallbacks<List<Traile
 
             @Override
             public List<Trailer> loadInBackground() {
-//                        Get the movie ID from the arguments
-                String movieID = args.getString(KEY_MOVIE_ID);
-                if(movieID == null)
-                    return Collections.emptyList();
-
-//              Get parameters and build an URL
-                String apiKey = App.getContext().getString(R.string.themoviedb);
-                URL trailersRequestURL = buildURL(movieID, apiKey);
-
-//                Parse trailers from the API
+//               Get the movie ID from the arguments
                 try{
+                    String movieID = args.getString(KEY_MOVIE_ID);
+                    if(movieID == null)
+                        return Collections.emptyList();
+
+    //              Get parameters and build an URL
+                    String apiKey = App.getContext().getString(R.string.themoviedb);
+                    URL trailersRequestURL = buildURL(movieID, apiKey);
+
+//                  Parse trailers from the API
                     String jsonTrailerResponse = NetworkService.getResponseFromHttpUrl(trailersRequestURL);
                     return MovieJsonUtils.getTrailersFromJson(jsonTrailerResponse);
                 }catch (Exception e){
                     e.printStackTrace();
-                    return Collections.emptyList();
+                    return new ArrayList<>();
                 }
             }
 

@@ -88,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
         //Initialize data in case it's empty
         if(mMovieAdapter.getMovieData().isEmpty()) {
-            mMovieAdapter.eraseMovieData();
             mScrollListener.resetState();
         }
 
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public boolean onOptionsItemSelected(MenuItem item) {
         int selectedItemID = item.getItemId();
 
-        mMovieAdapter.eraseMovieData();
+        mMovieAdapter.setMovieData(new ArrayList<Movie>());
         mScrollListener.resetState();
 
         switch (selectedItemID){
@@ -135,18 +134,22 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public void processFinish(List<Movie> output) {
+    public void processFinish(List<Movie> moviePage) {
         setLoadingBarVisibility(false);
-        if(!output.isEmpty()){
+        if(!moviePage.isEmpty()){
             setErrorMessageVisibility(false);
-            mMovieAdapter.addMovieData((ArrayList<Movie>) output);
+            ArrayList<Movie> currentMovies = mMovieAdapter.getMovieData();
+//            Add new page to current movies list if it is not there
+            if(!currentMovies.containsAll(moviePage))
+                currentMovies.addAll(moviePage);
+            mMovieAdapter.setMovieData(currentMovies);
         }else if (!mMovieAdapter.getMovieData().isEmpty()){
             setErrorMessageVisibility(true);
         }
     }
 
     private void refreshMovieData(){
-        mMovieAdapter.eraseMovieData();
+        mMovieAdapter.setMovieData(new ArrayList<Movie>());
         mScrollListener.resetState();
         if(mCurrentSortingMethod != null){
             loadMovieData(mCurrentSortingMethod, "1");
