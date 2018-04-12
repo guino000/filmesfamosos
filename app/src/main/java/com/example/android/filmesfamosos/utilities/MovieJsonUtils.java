@@ -1,6 +1,7 @@
 package com.example.android.filmesfamosos.utilities;
 
 import com.example.android.filmesfamosos.model.Movie;
+import com.example.android.filmesfamosos.model.Review;
 import com.example.android.filmesfamosos.model.Title;
 import com.example.android.filmesfamosos.model.Trailer;
 import com.example.android.filmesfamosos.model.Votes;
@@ -17,6 +18,47 @@ import java.util.ArrayList;
  */
 
 public final class MovieJsonUtils {
+    public static ArrayList<Review> getReviewsFromJson(String jsonString) throws JSONException{
+        final String REVIEW_ID = "id";
+        final String AUTHOR_ID = "author";
+        final String CONTENT_ID = "content";
+        final String URL_ID = "url";
+        final String RESULTS = "results";
+        final String ERROR_CODE = "status_code";
+
+        ArrayList<Review> parsedReviews = new ArrayList<>();
+        JSONObject jsonReviews = new JSONObject(jsonString);
+
+//        Check if has errors
+        if(jsonReviews.has(ERROR_CODE)) {
+            int errorCode = jsonReviews.getInt(ERROR_CODE);
+
+            switch (errorCode) {
+                case HttpURLConnection.HTTP_OK:
+                    break;
+                case HttpURLConnection.HTTP_NOT_FOUND:
+                    return null;
+                default:
+                    return null;
+            }
+        }
+
+//       Loop json and return review objects
+        JSONArray jsonArray = jsonReviews.getJSONArray(RESULTS);
+        for(int i = 0; i < jsonArray.length(); i++){
+            JSONObject reviewJsonObj = jsonArray.getJSONObject(i);
+            Review parsedReview = new Review(
+                    reviewJsonObj.optString(REVIEW_ID),
+                    reviewJsonObj.optString(AUTHOR_ID),
+                    reviewJsonObj.optString(CONTENT_ID),
+                    reviewJsonObj.optString(URL_ID)
+            );
+            parsedReviews.add(parsedReview);
+        }
+
+        return parsedReviews;
+    }
+
     public static ArrayList<Trailer> getTrailersFromJson(String jsonString) throws JSONException{
         final String TRAILER_ID = "id";
         final String TRAILER_KEY = "key";

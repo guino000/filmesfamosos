@@ -33,15 +33,16 @@ import okhttp3.Response;
 
 public class MovieService implements LoaderManager.LoaderCallbacks<List<Movie>>{
 //    keys
-    public static final String KEY_SORTING_METHOD = "sorting_method";
-    public static final String KEY_PAGE = "page";
+    private static final String KEY_SORTING_METHOD = "sorting_method";
+    private static final String KEY_PAGE = "page";
+    private static final String KEY_APIKEY = "api_key";
     public static final String SORT_BY_POPULARITY = "popular";
     public static final String SORT_BY_TOP_RATED = "top_rated";
 
     private AsyncTaskDelegate<List<Movie>> delegate;
     private Context mContext;
 
-    public MovieService(AsyncTaskDelegate responder, Context context){
+    public MovieService(AsyncTaskDelegate<List<Movie>> responder, Context context){
         delegate = responder;
         mContext = context;
     }
@@ -53,8 +54,8 @@ public class MovieService implements LoaderManager.LoaderCallbacks<List<Movie>>{
                 .appendPath("3")
                 .appendPath("movie")
                 .appendPath(sorting)
-                .appendQueryParameter("page", page)
-                .appendQueryParameter("api_key",apiKey);
+                .appendQueryParameter(KEY_PAGE, page)
+                .appendQueryParameter(KEY_APIKEY,apiKey);
         try {
             return new URL(builder.build().toString());
         }catch (MalformedURLException e) {

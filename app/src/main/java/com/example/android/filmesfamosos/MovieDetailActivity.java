@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.example.android.filmesfamosos.adapters.TrailerAdapter;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.model.Movie;
+import com.example.android.filmesfamosos.model.Review;
 import com.example.android.filmesfamosos.model.Trailer;
 import com.example.android.filmesfamosos.network.TrailerService;
 import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
@@ -34,7 +35,8 @@ import java.util.Date;
 import java.util.List;
 
 public class MovieDetailActivity extends AppCompatActivity implements
-        AsyncTaskDelegate<ArrayList<Trailer>>, TrailerAdapter.TrailerAdapterClickHandler{
+        AsyncTaskDelegate<ArrayList>,
+        TrailerAdapter.TrailerAdapterClickHandler{
 //    Loader ID's
     private static final int TRAILER_LOADER_ID = 21;
     private static final int REVIEW_LOADER_ID = 22;
@@ -144,10 +146,11 @@ public class MovieDetailActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void processFinish(ArrayList<Trailer> newTrailers) {
+    public void processFinish(ArrayList newData) {
+//        TODO: Implement reviews data handling
         setTrailerProgressbarVisibility(false);
-        if(!newTrailers.isEmpty()){
-            mTrailerAdapter.setTrailerData(newTrailers);
+        if(!newData.isEmpty()){
+            mTrailerAdapter.setTrailerData(newData);
         }else{
             setTrailerErrorMsgVisibility(true);
         }
