@@ -28,13 +28,13 @@ public class ReviewService implements LoaderManager.LoaderCallbacks<List<Review>
     private static final String KEY_APIKEY = "api_key";
     private static final String KEY_PAGE = "page";
 //    Keys for the args bundle
-    private static final String KEY_BUNDLE_MOVIE_ID = "movie_id";
-    private static final String KEY_BUNDLE_PAGE = "review_page";
+    public static final String KEY_BUNDLE_MOVIE_ID = "movie_id";
+    public static final String KEY_BUNDLE_PAGE = "review_page";
 //    Member variables
-    private AsyncTaskDelegate<List<Review>> mReviewDelegate;
+    private AsyncTaskDelegate mReviewDelegate;
     private Context mContext;
 
-    public ReviewService(AsyncTaskDelegate<List<Review>> delegate, Context context){
+    public ReviewService(AsyncTaskDelegate delegate, Context context){
         mReviewDelegate = delegate;
         mContext = context;
     }
@@ -98,7 +98,7 @@ public class ReviewService implements LoaderManager.LoaderCallbacks<List<Review>
 
             @Override
             public void deliverResult(@Nullable List<Review> data) {
-//                TODO: Implement the deliverResult function
+                mCachedReviews = data;
                 super.deliverResult(data);
             }
         };
@@ -106,7 +106,7 @@ public class ReviewService implements LoaderManager.LoaderCallbacks<List<Review>
 
     @Override
     public void onLoadFinished(@NonNull Loader<List<Review>> loader, List<Review> data) {
-//    TODO: Implement onLoadFinished Function
+        mReviewDelegate.processFinish(data);
     }
 
     @Override

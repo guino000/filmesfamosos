@@ -38,7 +38,7 @@ public class TrailerService implements LoaderManager.LoaderCallbacks<List<Traile
     private AsyncTaskDelegate delegate;
     private Context mContext;
 
-    public TrailerService(AsyncTaskDelegate<ArrayList<Trailer>> responder, Context context){
+    public TrailerService(AsyncTaskDelegate<ArrayList> responder, Context context){
         this.delegate = responder;
         this.mContext = context;
     }

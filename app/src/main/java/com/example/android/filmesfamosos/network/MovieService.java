@@ -33,8 +33,8 @@ import okhttp3.Response;
 
 public class MovieService implements LoaderManager.LoaderCallbacks<List<Movie>>{
 //    keys
-    private static final String KEY_SORTING_METHOD = "sorting_method";
-    private static final String KEY_PAGE = "page";
+    public static final String KEY_SORTING_METHOD = "sorting_method";
+    public static final String KEY_PAGE = "page";
     private static final String KEY_APIKEY = "api_key";
     public static final String SORT_BY_POPULARITY = "popular";
     public static final String SORT_BY_TOP_RATED = "top_rated";
