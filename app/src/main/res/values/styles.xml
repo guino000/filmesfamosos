@@ -14,6 +14,10 @@
         <item name="cardViewStyle">@style/CardView</item>
     </style>
 
+    <style name="CardViewDark" parent="@style/CardView.Dark">
+        <item name="cardBackgroundColor">@color/cardViewBackColor</item>
+    </style>
+
     <style name="movie_description" parent="TextAppearance.AppCompat.Caption">
         <item name="android:textColor">@color/white</item>
     </style>

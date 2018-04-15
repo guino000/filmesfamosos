@@ -115,7 +115,7 @@ public class MovieService implements LoaderManager.LoaderCallbacks<List<Movie>>{
     @Override
     public void onLoadFinished(@NonNull Loader<List<Movie>> loader, List<Movie> data) {
 //        Delegate data handling to the activity
-        delegate.processFinish(data);
+        delegate.processFinish(data, loader);
     }
 
     @Override

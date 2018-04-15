@@ -30,23 +30,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
             app:layout_constraintEnd_toStartOf="@+id/iv_moviepicture"
             app:layout_constraintStart_toEndOf="@+id/iv_moviepicture"
             app:layout_constraintTop_toBottomOf="@+id/iv_moviepicture"
             tools:text="@string/dummy_movie_title" />
 
         <android.support.v7.widget.CardView
-            android:layout_width="0dp"
+            android:id="@+id/cv_movie_info"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/parent_padding"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
             app:cardBackgroundColor="@color/cardViewBackColor"
             app:cardElevation="4dp"
             app:cardUseCompatPadding="true"
             app:contentPadding="@dimen/parent_padding"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_movietitle"
             app:layout_constraintVertical_bias="0.0">
@@ -60,7 +61,7 @@
                     android:id="@+id/img_star"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="4dp"
                     android:contentDescription="@string/content_description_star_drawable"
                     android:src="@drawable/ic_star_black_24dp"
                     android:tint="@color/white"
@@ -72,9 +73,10 @@
                     android:id="@+id/tv_movierating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginStart="8dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/tv_rating_label"
+                    app:layout_constraintStart_toEndOf="@+id/tv_rating_label"
                     tools:text="@string/dummy_movie_stars" />
 
                 <TextView
@@ -83,9 +85,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/movie_release_date_label"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    app:layout_constraintStart_toStartOf="@+id/tv_movierating"
-                    app:layout_constraintTop_toBottomOf="@+id/tv_movierating" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    app:layout_constraintStart_toStartOf="@+id/tv_rating_label"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_rating_label" />
 
                 <TextView
                     android:id="@+id/tv_movie_releasedate"
@@ -103,7 +105,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/movie_original_title_label"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
                     app:layout_constraintStart_toStartOf="@+id/tv_release_date_label"
                     app:layout_constraintTop_toBottomOf="@+id/tv_release_date_label" />
 
@@ -122,7 +124,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tv_original_title_label"
                     tools:text="@string/dummy_movie_description" />
@@ -131,9 +133,9 @@
                     android:id="@+id/tv_trailers_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="16dp"
                     android:text="@string/movie_trailers_label"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     app:layout_constraintStart_toStartOf="@+id/tv_moviesdescription"
                     app:layout_constraintTop_toBottomOf="@+id/divider" />
 
@@ -141,7 +143,7 @@
                     android:id="@+id/divider"
                     android:layout_width="0dp"
                     android:layout_height="1dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="16dp"
                     android:background="?android:attr/listDivider"
                     android:visibility="visible"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -149,7 +151,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tv_moviesdescription" />
 
-                <ScrollView
+                <LinearLayout
                     android:id="@+id/trailers_scroll_view"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -159,9 +161,9 @@
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/rv_trailers"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
-                </ScrollView>
+                </LinearLayout>
 
                 <ProgressBar
                     android:id="@+id/pb_trailer_loading"
@@ -193,13 +195,24 @@
                     android:id="@+id/tv_reviews_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="16dp"
                     android:text="@string/movie_reviews_label"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     app:layout_constraintStart_toStartOf="@+id/trailers_scroll_view"
+                    app:layout_constraintTop_toBottomOf="@+id/divider2" />
+
+                <View
+                    android:id="@+id/divider2"
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:background="?android:attr/listDivider"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/trailers_scroll_view" />
 
-                <ScrollView
+                <LinearLayout
                     android:id="@+id/reviews_scroll_view"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -209,9 +222,9 @@
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/rv_reviews"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
-                </ScrollView>
+                </LinearLayout>
 
                 <ProgressBar
                     android:id="@+id/pb_reviews_loading"
@@ -230,7 +243,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/trailer_error_msg"
+                    android:text="@string/reviews_error_msg"
                     android:textAppearance="@style/TextAppearance.AppCompat.Caption"
                     android:visibility="invisible"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -238,6 +251,15 @@
                     app:layout_constraintHorizontal_bias="0.487"
                     app:layout_constraintStart_toStartOf="@+id/reviews_scroll_view"
                     app:layout_constraintTop_toTopOf="@+id/reviews_scroll_view" />
+
+                <TextView
+                    android:id="@+id/tv_rating_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/movie_rating_label"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
             </android.support.constraint.ConstraintLayout>
         </android.support.v7.widget.CardView>
     </android.support.constraint.ConstraintLayout>

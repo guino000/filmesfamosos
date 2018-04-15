@@ -4,7 +4,7 @@
     <dimen name="trailer_recycler_view_max_height">224dp</dimen>
 
     <!--Dimensions for trailer miniature layout-->
-    <dimen name="trailer_miniature_height">32dp</dimen>
-    <dimen name="trailer_miniature_width">32dp</dimen>
+    <dimen name="trailer_miniature_height">40dp</dimen>
+    <dimen name="trailer_miniature_width">40dp</dimen>
     <dimen name="parent_padding">16dp</dimen>
 </resources>

@@ -3,6 +3,7 @@ package com.example.android.filmesfamosos;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -134,7 +135,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public void processFinish(List<Movie> moviePage) {
+    public void processFinish(List<Movie> moviePage, Loader callerLoader) {
         setLoadingBarVisibility(false);
         if(!moviePage.isEmpty()){
             setErrorMessageVisibility(false);

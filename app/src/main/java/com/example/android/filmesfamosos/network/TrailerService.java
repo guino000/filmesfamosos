@@ -116,7 +116,7 @@ public class TrailerService implements LoaderManager.LoaderCallbacks<List<Traile
     @Override
     public void onLoadFinished(@NonNull Loader<List<Trailer>> loader, List<Trailer> data) {
 //        Delegate the data handling to the activity
-        delegate.processFinish(data);
+        delegate.processFinish(data, loader);
     }
 
     @Override

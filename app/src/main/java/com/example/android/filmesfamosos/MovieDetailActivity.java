@@ -94,10 +94,12 @@ public class MovieDetailActivity extends AppCompatActivity implements
         mTrailerAdapter = new TrailerAdapter(this);
         mTrailerRecyclerView.setAdapter(mTrailerAdapter);
         mTrailerRecyclerView.setVisibility(View.VISIBLE);
+        mTrailerRecyclerView.setNestedScrollingEnabled(false);
 //        Set review rv adapter
         mReviewAdapter = new ReviewAdapter();
         mReviewRecyclerView.setAdapter(mReviewAdapter);
         mReviewRecyclerView.setVisibility(View.VISIBLE);
+        mReviewRecyclerView.setNestedScrollingEnabled(false);
 
 //        Process income intent with movie data
         Intent intentFromMain = getIntent();
@@ -218,19 +220,22 @@ public class MovieDetailActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void processFinish(ArrayList newData) {
-        setReviewProgressbarVisibility(false);
-        setTrailerProgressbarVisibility(false);
-        if(!newData.isEmpty()){
-            if(newData.get(0) instanceof Trailer) {
-                mTrailerAdapter.setTrailerData(newData);
-            }
-            else if(newData.get(0) instanceof Review) {
-                mReviewAdapter.setReviewData(newData);
-            }
-        }else{
-            setTrailerErrorMsgVisibility(true);
-            setReviewErrorMsgVisibility(true);
+    public void processFinish(ArrayList newData, android.support.v4.content.Loader callerLoader) {
+        switch (callerLoader.getId()){
+            case TRAILER_LOADER_ID:
+                setTrailerProgressbarVisibility(false);
+                if(!newData.isEmpty())
+                    mTrailerAdapter.setTrailerData(newData);
+                else
+                    setTrailerErrorMsgVisibility(true);
+                break;
+            case REVIEW_LOADER_ID:
+                setReviewProgressbarVisibility(false);
+                if(!newData.isEmpty())
+                    mReviewAdapter.setReviewData(newData);
+                else
+                    setReviewErrorMsgVisibility(true);
+                break;
         }
     }
 

@@ -1,5 +1,8 @@
 package com.example.android.filmesfamosos.interfaces;
 
+import android.support.v4.content.Loader;
+import android.support.v7.widget.RecyclerView;
+
 /***************************************************************************************
  *    Title: AsyncTaskDelegate.java
  *    Author: dhiegoabrantes
@@ -9,5 +12,5 @@ package com.example.android.filmesfamosos.interfaces;
  ***************************************************************************************/
 
 public interface AsyncTaskDelegate<T> {
-    void processFinish(T output);
+    void processFinish(T output, Loader callerLoader);
 }

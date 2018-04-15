@@ -106,7 +106,7 @@ public class ReviewService implements LoaderManager.LoaderCallbacks<List<Review>
 
     @Override
     public void onLoadFinished(@NonNull Loader<List<Review>> loader, List<Review> data) {
-        mReviewDelegate.processFinish(data);
+        mReviewDelegate.processFinish(data, loader);
     }
 
     @Override
