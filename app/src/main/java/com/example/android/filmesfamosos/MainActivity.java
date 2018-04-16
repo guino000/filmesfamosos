@@ -117,15 +117,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     public boolean onOptionsItemSelected(MenuItem item) {
         int selectedItemID = item.getItemId();
 
-        mMovieAdapter.setMovieData(new ArrayList<Movie>());
-        mScrollListener.resetState();
-
         switch (selectedItemID){
             case R.id.action_sort_popularity:
+                mMovieAdapter.setMovieData(new ArrayList<Movie>());
+                mScrollListener.resetState();
                 loadMovieData(MovieService.SORT_BY_POPULARITY,"1");
                 mCurrentSortingMethod = MovieService.SORT_BY_POPULARITY;
                 break;
             case R.id.action_sort_toprated :
+                mMovieAdapter.setMovieData(new ArrayList<Movie>());
+                mScrollListener.resetState();
                 loadMovieData(MovieService.SORT_BY_TOP_RATED,"1");
                 mCurrentSortingMethod = MovieService.SORT_BY_TOP_RATED;
                 break;

@@ -15,6 +15,9 @@
     <string name="youtube_url">http://www.youtube.com/watch?v=</string>
 
     <!--Movie Detail Activity Strings-->
+    <!--Menu-->
+    <string name="movie_detail_menu_action_add_favorites">Add Favorite</string>
+    <!--Activity-->
     <string name="movie_rating_label">Rating:</string>
     <string name="movie_release_date_label">Release Date:</string>
     <string name="movie_original_title_label">Original Title:</string>

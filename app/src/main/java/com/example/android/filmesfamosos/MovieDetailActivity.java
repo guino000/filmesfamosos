@@ -10,6 +10,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -138,6 +141,25 @@ public class MovieDetailActivity extends AppCompatActivity implements
             mReviewService = new ReviewService(this,this);
             loadReviewData(String.valueOf(clickedMovie.getId()), "1");
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.movies_detail_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int selectedItemID = item.getItemId();
+
+        switch (selectedItemID){
+            case R.id.action__movie_details_add_favorites:
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void loadReviewData(String movieID, String page){
