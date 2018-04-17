@@ -1,6 +1,9 @@
 package com.example.android.filmesfamosos.utilities;
 
+import android.content.ContentValues;
+
 import com.example.android.filmesfamosos.model.Movie;
+import com.example.android.filmesfamosos.model.MoviesContract.*;
 import com.example.android.filmesfamosos.model.Review;
 import com.example.android.filmesfamosos.model.Title;
 import com.example.android.filmesfamosos.model.Trailer;
@@ -59,6 +62,25 @@ public final class MovieJsonUtils {
         return parsedReviews;
     }
 
+    public static ContentValues[] getReviewsContentValues(Review[] reviews, String movieID){
+        ContentValues[] reviewValues = new ContentValues[reviews.length];
+        for (int i = 0; i < reviews.length; i++) {
+            ContentValues contentValues = getReviewContentValues(reviews[i], movieID);
+            reviewValues[i] = contentValues;
+        }
+
+        return reviewValues;
+    }
+
+    public static ContentValues getReviewContentValues(Review review, String movieID){
+        ContentValues reviewEntryValues = new ContentValues();
+        reviewEntryValues.put(ReviewEntry.COLUMN_AUTHOR, review.getAuthor());
+        reviewEntryValues.put(ReviewEntry.COLUMN_CONTENT, review.getReviewContent());
+        reviewEntryValues.put(ReviewEntry.COLUMN_URL, review.getUrl());
+        reviewEntryValues.put(ReviewEntry.COLUMN_FK_MOVIE_ID, movieID);
+        return reviewEntryValues;
+    }
+
     public static ArrayList<Trailer> getTrailersFromJson(String jsonString) throws JSONException{
         final String TRAILER_ID = "id";
         final String TRAILER_KEY = "key";
@@ -103,6 +125,26 @@ public final class MovieJsonUtils {
 
         return parsedTrailers;
 
+    }
+
+    public static ContentValues[] getTrailersContentValues(Trailer[] trailers, String movieID){
+        ContentValues[] trailerValues = new ContentValues[trailers.length];
+        for (int i = 0; i < trailers.length; i++) {
+            ContentValues contentValues = getTrailerContentValues(trailers[i], movieID);
+            trailerValues[i] = contentValues;
+        }
+
+        return trailerValues;
+    }
+
+    public static ContentValues getTrailerContentValues(Trailer trailer, String movieID){
+        ContentValues trailerEntryValues = new ContentValues();
+        trailerEntryValues.put(TrailerEntry.COLUMN_NAME, trailer.getName());
+        trailerEntryValues.put(TrailerEntry.COLUMN_TRAILER_KEY, trailer.getKey());
+        trailerEntryValues.put(TrailerEntry.COLUMN_SITE, trailer.getSite());
+        trailerEntryValues.put(TrailerEntry.COLUMN_SIZE, trailer.getSize());
+        trailerEntryValues.put(TrailerEntry.COLUMN_FK_MOVIE_ID, movieID);
+        return trailerEntryValues;
     }
 
     public static ArrayList<Movie> getMoviesFromJson(String jsonString) throws JSONException {
@@ -158,5 +200,28 @@ public final class MovieJsonUtils {
         }
 
         return parsedMovies;
+    }
+
+    public static ContentValues[] getMoviesContentValues(Movie[] movies){
+        ContentValues[] movieValues = new ContentValues[movies.length];
+        for (int i = 0; i < movies.length; i++) {
+            ContentValues contentValues = getMovieContentValues(movies[i]);
+            movieValues[i] = contentValues;
+        }
+
+        return movieValues;
+    }
+
+    public static ContentValues getMovieContentValues(Movie movie){
+        ContentValues movieEntryValues = new ContentValues();
+        movieEntryValues.put(MovieEntry.COLUMN_ORIGINAL_TITLE, movie.getTitle().getOriginalTitle());
+        movieEntryValues.put(MovieEntry.COLUMN_TITLE, movie.getTitle().getTitle());
+        movieEntryValues.put(MovieEntry.COLUMN_OVERVIEW, movie.getOverview());
+        movieEntryValues.put(MovieEntry.COLUMN_POPULARITY, movie.getVotes().getPopularity());
+        movieEntryValues.put(MovieEntry.COLUMN_VOTE_AVERAGE, movie.getVotes().getVoteAverage());
+        movieEntryValues.put(MovieEntry.COLUMN_VOTE_COUNT, movie.getVotes().getVoteCount());
+        movieEntryValues.put(MovieEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
+        movieEntryValues.put(MovieEntry.COLUMN_POSTER_PATH, movie.getPosterPath());
+        return movieEntryValues;
     }
 }

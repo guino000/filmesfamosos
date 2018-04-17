@@ -6,6 +6,7 @@ public class MoviesContract {
     public static final class MovieEntry implements BaseColumns{
         public static final String TABLE_NAME = "movies";
 
+        public static final String COLUMN_MOVIE_API_ID = "api_id";
         public static final String COLUMN_TITLE = "title";
         public static final String COLUMN_ORIGINAL_TITLE = "original_title";
         public static final String COLUMN_POSTER_PATH = "poster_path";

@@ -19,6 +19,7 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_MOVIES_TABLE =
                 "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
                 MovieEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                MovieEntry.COLUMN_MOVIE_API_ID + " INTEGER NOT NULL," +
                 MovieEntry.COLUMN_ORIGINAL_TITLE + " TEXT," +
                 MovieEntry.COLUMN_TITLE + " TEXT NOT NULL," +
                 MovieEntry.COLUMN_OVERVIEW + " TEXT NOT NULL," +
@@ -37,8 +38,10 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
                 ReviewEntry.COLUMN_URL + " TEXT NOT NULL," +
                 ReviewEntry.COLUMN_FK_MOVIE_ID + " INTEGER NOT NULL," +
                 " UNIQUE (" + ReviewEntry.COLUMN_URL + ") ON CONFLICT REPLACE, " +
+                "CONSTRAINT " + ReviewEntry.COLUMN_FK_MOVIE_ID +
                 " FOREIGN KEY (" + ReviewEntry.COLUMN_FK_MOVIE_ID + ") REFERENCES " +
-                MovieEntry.TABLE_NAME + "(" + MovieEntry._ID + "));";
+                MovieEntry.TABLE_NAME + "(" + MovieEntry._ID + ")" +
+                " ON DELETE CASCADE);";
 
         final String SQL_CREATE_TRAILERS_TABLE =
                 "CREATE TABLE " + TrailerEntry.TABLE_NAME + " (" +
@@ -49,8 +52,10 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
                 TrailerEntry.COLUMN_SIZE + " INTEGER NOT NULL," +
                 TrailerEntry.COLUMN_FK_MOVIE_ID + " INTEGER NOT NULL," +
                 " UNIQUE (" + TrailerEntry.COLUMN_TRAILER_KEY + ") ON CONFLICT REPLACE," +
+                "CONSTRAINT " + TrailerEntry.COLUMN_FK_MOVIE_ID +
                 " FOREIGN KEY (" + TrailerEntry.COLUMN_FK_MOVIE_ID + ")" +
-                " REFERENCES " + MovieEntry.TABLE_NAME + "(" + MovieEntry._ID + "));";
+                " REFERENCES " + MovieEntry.TABLE_NAME + "(" + MovieEntry._ID + ")" +
+                " ON DELETE CASCADE);";
 
         db.execSQL(SQL_CREATE_MOVIES_TABLE);
         db.execSQL(SQL_CREATE_REVIEWS_TABLE);

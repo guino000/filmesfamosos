@@ -14,14 +14,21 @@ public class Movie implements Parcelable{
     private String mOverview;
     private String mReleaseDate;
     private Votes mVotes;
+    private Review[] mReviews;
+    private Trailer[] mTrailers;
+    private boolean mIsFavorite;
 
-    public Movie(long id, Title title, String posterPath, String overview, Votes votes, String releaseDate){
+    public Movie(long id, Title title, String posterPath, String overview, Votes votes,
+                 String releaseDate, boolean isFavorite, Trailer[] trailers, Review[] reviews){
         mID = id;
         mTitle = title;
         mPosterPath = posterPath;
         mOverview = overview;
         mVotes = votes;
         mReleaseDate = releaseDate;
+        mIsFavorite = isFavorite;
+        mTrailers = trailers;
+        mReviews = reviews;
     }
 
     protected Movie(Parcel in) {
@@ -31,6 +38,7 @@ public class Movie implements Parcelable{
         mOverview = in.readString();
         mVotes = in.readParcelable(Votes.class.getClassLoader());
         mReleaseDate = in.readString();
+        mIsFavorite = in.readByte() > 0;
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -53,6 +61,7 @@ public class Movie implements Parcelable{
         dest.writeString(mOverview);
         dest.writeParcelable(mVotes, flags);
         dest.writeString(mReleaseDate);
+        dest.writeByte((byte) (mIsFavorite ? 1 : 0));
     }
 
     @Override
@@ -75,6 +84,20 @@ public class Movie implements Parcelable{
     public String getOverview(){return mOverview;}
     public String getReleaseDate(){return mReleaseDate;}
     public Votes getVotes(){return mVotes;}
+    public void setFavorite(boolean isFavorite){mIsFavorite = isFavorite;}
+    public boolean getIsFavorite(){return mIsFavorite;}
+    public void setTrailers(Trailer[] trailers){
+        mTrailers = trailers;
+    }
+    public Trailer[] getTrailers(){
+        return mTrailers;
+    }
+    public void setReviews(Review[] reviews){
+        mReviews = reviews;
+    }
+    public Review[] getReviews(){
+        return mReviews;
+    }
 
     public static class MovieBuilder{
         long nID;
@@ -83,6 +106,9 @@ public class Movie implements Parcelable{
         String nOverview;
         Votes nVotes;
         String nReleaseDate;
+        Review[] nReviews;
+        Trailer[] nTrailers;
+        boolean nIsFavorite;
 
         public MovieBuilder(long id, Title title, String posterPath){
             nID = id;
@@ -105,9 +131,25 @@ public class Movie implements Parcelable{
             return this;
         }
 
+        public MovieBuilder setFavorite(boolean isFavorite){
+            this.nIsFavorite = isFavorite;
+            return this;
+        }
+
+        public MovieBuilder setReviews(Review[] reviews){
+            this.nReviews = reviews;
+            return this;
+        }
+
+        public MovieBuilder setTrailers(Trailer[] trailers){
+            this.nTrailers = trailers;
+            return this;
+        }
+
         public Movie build(){
             return new Movie(
-                    nID, nTitle, nPosterPath, nOverview, nVotes, nReleaseDate
+                    nID, nTitle, nPosterPath, nOverview, nVotes, nReleaseDate,
+                    nIsFavorite, nTrailers, nReviews
             );
         }
     }

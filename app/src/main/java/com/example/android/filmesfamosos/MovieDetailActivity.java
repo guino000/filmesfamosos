@@ -3,6 +3,7 @@ package com.example.android.filmesfamosos;
 import android.annotation.SuppressLint;
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.res.Configuration;
@@ -29,6 +30,7 @@ import com.example.android.filmesfamosos.model.Review;
 import com.example.android.filmesfamosos.model.Trailer;
 import com.example.android.filmesfamosos.network.ReviewService;
 import com.example.android.filmesfamosos.network.TrailerService;
+import com.example.android.filmesfamosos.utilities.MovieDatabaseUtils;
 import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
 import com.squareup.picasso.Picasso;
 
@@ -53,6 +55,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
     private TextView mMovieDescriptionTextView;
     private TextView mReleaseDateTextView;
     private TextView mMovieRatingTextView;
+    private Movie mCurrentMovie;
 //    Member variables for trailer section
     private TextView mTrailerErrorMsg;
     private RecyclerView mTrailerRecyclerView;
@@ -107,39 +110,38 @@ public class MovieDetailActivity extends AppCompatActivity implements
 //        Process income intent with movie data
         Intent intentFromMain = getIntent();
         if(intentFromMain.hasExtra(getString(R.string.intentres_name_movie))){
-            final Movie clickedMovie = intentFromMain.getParcelableExtra(getString(R.string.intentres_name_movie));
-            String miniatureURL = clickedMovie.getPosterPath();
+            mCurrentMovie = intentFromMain.getParcelableExtra(getString(R.string.intentres_name_movie));
+            String miniatureURL = mCurrentMovie.getPosterPath();
             Picasso.with(this).load(miniatureURL).into(mMoviePictureImageView);
-            mMovieTitleTextView.setText(clickedMovie.getTitle().getTitle());
-            String originalTitle = clickedMovie.getTitle().getOriginalTitle();
+            mMovieTitleTextView.setText(mCurrentMovie.getTitle().getTitle());
+            String originalTitle = mCurrentMovie.getTitle().getOriginalTitle();
             mMovieOriginalTitleTextView.setText(originalTitle);
-            mMovieDescriptionTextView.setText(clickedMovie.getOverview());
+            mMovieDescriptionTextView.setText(mCurrentMovie.getOverview());
             try {
-                Date date = new SimpleDateFormat(getString(R.string.movieapi_date_format)).parse(clickedMovie.getReleaseDate());
+                Date date = new SimpleDateFormat(getString(R.string.movieapi_date_format)).parse(mCurrentMovie.getReleaseDate());
                 String formattedDate = new SimpleDateFormat(getString(R.string.date_short_date_format)).format(date);
                 String releaseDateWithLabel = formattedDate;
                 mReleaseDateTextView.setText(releaseDateWithLabel);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            mMovieRatingTextView.setText(String.valueOf(
-                    clickedMovie.getVotes().getVoteAverage()));
+            mMovieRatingTextView.setText(String.valueOf(mCurrentMovie.getVotes().getVoteAverage()));
 
             //        Set review endless scroll listener
             mReviewScrollListener = new EndlessRecyclerViewScrollListener((LinearLayoutManager) mReviewRecyclerView.getLayoutManager()) {
                 @Override
                 public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                    loadReviewData(String.valueOf(clickedMovie.getId()), String.valueOf(page + 1));
+                    loadReviewData(String.valueOf(mCurrentMovie.getId()), String.valueOf(page + 1));
                 }
             };
 
 //            Initialize trailer loader
             mTrailerService = new TrailerService(this, this);
-            loadTrailerData(String.valueOf(clickedMovie.getId()));
+            loadTrailerData(String.valueOf(mCurrentMovie.getId()));
 
 //            Initialize review loader
             mReviewService = new ReviewService(this,this);
-            loadReviewData(String.valueOf(clickedMovie.getId()), "1");
+            loadReviewData(String.valueOf(mCurrentMovie.getId()), "1");
         }
     }
 
@@ -155,7 +157,10 @@ public class MovieDetailActivity extends AppCompatActivity implements
         int selectedItemID = item.getItemId();
 
         switch (selectedItemID){
-            case R.id.action__movie_details_add_favorites:
+            case R.id.action_movie_details_add_favorites:
+//                Insert movie into database and set it to favorite
+                mCurrentMovie.setFavorite(true);
+                MovieDatabaseUtils.insertMovie(mCurrentMovie, this);
                 break;
         }
 
