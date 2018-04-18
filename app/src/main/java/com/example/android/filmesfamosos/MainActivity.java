@@ -161,14 +161,27 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         setLoadingBarVisibility(false);
         if(!moviePage.isEmpty()){
             setErrorMessageVisibility(false);
+
+//            Check if the data is already loaded
             ArrayList<Movie> currentMovies = mMovieAdapter.getMovieData();
-//            Check if movies are favorites
-            for(int i = 0; i < moviePage.size(); i++){
-                moviePage.get(i).setFavorite(MovieUtils.checkIsFavoriteMovie(moviePage.get(i), this));
+            Movie checkMovie = moviePage.get(0);
+            boolean movieExists = false;
+            for(int i = 0; i < currentMovies.size(); i++){
+                if(currentMovies.get(i).getId() == checkMovie.getId()){
+                    movieExists = true;
+                    break;
+                }
             }
-//            Add new page to current movies list if it is not there
-            if(!currentMovies.containsAll(moviePage))
-                currentMovies.addAll(moviePage);
+
+//            Exit if the data is already loaded
+            if(movieExists) return;
+
+//            Check if movies are favorites
+            for (int i = 0; i < moviePage.size(); i++)
+                moviePage.get(i).setFavorite(MovieUtils.checkIsFavoriteMovie(moviePage.get(i), this));
+            currentMovies.addAll(moviePage);
+
+//            Insert movies on adapter with the correct favorite status
             mMovieAdapter.setMovieData(currentMovies);
         }else if (!mMovieAdapter.getMovieData().isEmpty()){
             setErrorMessageVisibility(true);

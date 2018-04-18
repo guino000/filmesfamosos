@@ -41,6 +41,7 @@ public class MovieService implements LoaderManager.LoaderCallbacks<List<Movie>>{
 
     private AsyncTaskDelegate<List<Movie>> delegate;
     private Context mContext;
+    private long mCurrentPage;
 
     public MovieService(AsyncTaskDelegate<List<Movie>> responder, Context context){
         delegate = responder;
