@@ -38,7 +38,7 @@ public class Movie implements Parcelable{
         mOverview = in.readString();
         mVotes = in.readParcelable(Votes.class.getClassLoader());
         mReleaseDate = in.readString();
-        mIsFavorite = in.readByte() > 0;
+        mIsFavorite = in.readByte() != 0;
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {

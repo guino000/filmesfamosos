@@ -1,6 +1,7 @@
 package com.example.android.filmesfamosos;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.LoaderManager;
 import android.content.AsyncTaskLoader;
 import android.content.ContentValues;
@@ -135,6 +136,10 @@ public class MovieDetailActivity extends AppCompatActivity implements
                 }
             };
 
+//            Create back button on actionbar
+            android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+            actionBar.setDisplayHomeAsUpEnabled(true);
+
 //            Initialize trailer loader
             mTrailerService = new TrailerService(this, this);
             loadTrailerData(String.valueOf(mCurrentMovie.getId()));
@@ -147,8 +152,12 @@ public class MovieDetailActivity extends AppCompatActivity implements
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+//        Inflate menu layout
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.movies_detail_menu, menu);
+//        Set favorite icon style according to current movie favorite status
+        MenuItem item = menu.findItem(R.id.action_movie_details_add_favorites);
+        setFavoriteIconStyle(item, mCurrentMovie.getIsFavorite());
         return true;
     }
 
@@ -158,13 +167,41 @@ public class MovieDetailActivity extends AppCompatActivity implements
 
         switch (selectedItemID){
             case R.id.action_movie_details_add_favorites:
-//                Insert movie into database and set it to favorite
-                mCurrentMovie.setFavorite(true);
-                MovieDatabaseUtils.insertMovie(mCurrentMovie, this);
+                toggleFavorite();
+                setFavoriteIconStyle(item,mCurrentMovie.getIsFavorite());
                 break;
+            case android.R.id.home:
+                onBackPressed();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent retIntent = new Intent();
+        retIntent.putExtra(getString(R.string.intentres_name_movie), mCurrentMovie);
+        setResult(RESULT_OK, retIntent);
+        super.onBackPressed();
+    }
+
+    private void toggleFavorite(){
+//       Insert movie into database, set it to favorite and change the favorite icon
+        if(!mCurrentMovie.getIsFavorite()) {
+            if(MovieDatabaseUtils.insertMovie(mCurrentMovie, this)>0)
+                mCurrentMovie.setFavorite(true);
+        }else{
+            if(MovieDatabaseUtils.deleteMovie(mCurrentMovie, this)>0)
+                mCurrentMovie.setFavorite(false);
+        }
+    }
+
+    private void setFavoriteIconStyle(MenuItem item, boolean isFavorite){
+//        Change the favorite action menu icon style based on current favorite status
+        if(isFavorite)
+            item.setIcon(R.drawable.ic_favorite_white_24dp);
+        else
+            item.setIcon(R.drawable.ic_favorite_border_white_24dp);
     }
 
     private void loadReviewData(String movieID, String page){

@@ -20,6 +20,7 @@ import com.example.android.filmesfamosos.adapters.MovieAdapter;
 import com.example.android.filmesfamosos.model.Movie;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.network.MovieService;
+import com.example.android.filmesfamosos.utilities.MovieUtils;
 import com.example.android.filmesfamosos.utilities.NetworkUtils;
 
 import java.util.ArrayList;
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private EndlessRecyclerViewScrollListener mScrollListener;
 
+//    Request code to get movie favorite status from detail activity
+    private static final int REQUEST_CODE_MOVIE_DETAIL = 1;
 //    Loader ID
     private final static int ID_MOVIE_LOADER = 11;
 
@@ -98,12 +101,30 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case REQUEST_CODE_MOVIE_DETAIL:
+                if(resultCode==RESULT_OK){
+//                    Get the movie returned from detail activity and update the favorite status in the adapter data
+                    Movie retMovie = data.getParcelableExtra(getString(R.string.intentres_name_movie));
+                    ArrayList<Movie> currentMovies = mMovieAdapter.getMovieData();
+                    for(int i = 0; i < currentMovies.size(); i++){
+                        if(currentMovies.get(i).getId() == retMovie.getId())
+                            currentMovies.set(i, retMovie);
+                    }
+                    mMovieAdapter.setMovieData(currentMovies);
+                }
+        }
+    }
+
+    @Override
     public void onClick(Movie clickedMovie) {
         Context context = this;
         Class destinationClass = MovieDetailActivity.class;
         Intent intentToMovieDetail = new Intent(context, destinationClass);
         intentToMovieDetail.putExtra("movie", clickedMovie);
-        startActivity(intentToMovieDetail);
+        startActivityForResult(intentToMovieDetail, REQUEST_CODE_MOVIE_DETAIL);
     }
 
     @Override
@@ -141,6 +162,10 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if(!moviePage.isEmpty()){
             setErrorMessageVisibility(false);
             ArrayList<Movie> currentMovies = mMovieAdapter.getMovieData();
+//            Check if movies are favorites
+            for(int i = 0; i < moviePage.size(); i++){
+                moviePage.get(i).setFavorite(MovieUtils.checkIsFavoriteMovie(moviePage.get(i), this));
+            }
 //            Add new page to current movies list if it is not there
             if(!currentMovies.containsAll(moviePage))
                 currentMovies.addAll(moviePage);

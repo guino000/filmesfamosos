@@ -17,18 +17,11 @@ public final class MovieDatabaseUtils {
     public static long insertMovie(Movie movie, Context context){
 //        Get database from helper
         SQLiteOpenHelper sqLiteOpenHelper = new MoviesDbHelper(context);
-        SQLiteDatabase db = sqLiteOpenHelper.getWritableDatabase();
+        try(SQLiteDatabase db = sqLiteOpenHelper.getWritableDatabase()) {
 //        Create movie content values
-        ContentValues movieValues = MovieJsonUtils.getMovieContentValues(movie);
+            ContentValues movieValues = MovieJsonUtils.getMovieContentValues(movie);
 //        Insert movie into database
-        long itemID = db.insert(MoviesContract.MovieEntry.TABLE_NAME, null, movieValues);
-//        If movie insertion was successful, insert reviews and trailers of that movie
-        if(itemID > 0){
-            bulkInsertReviews(movie.getReviews(), String.valueOf(itemID),context);
-            bulkInsertTrailers(movie.getTrailers(), String.valueOf(itemID), context);
-            return itemID;
-        }else{
-            return -1;
+            return db.insert(MoviesContract.MovieEntry.TABLE_NAME, null, movieValues);
         }
     }
 
@@ -49,6 +42,7 @@ public final class MovieDatabaseUtils {
             e.printStackTrace();
         } finally {
             db.endTransaction();
+            db.close();
         }
     }
 
@@ -69,15 +63,17 @@ public final class MovieDatabaseUtils {
             e.printStackTrace();
         } finally {
             db.endTransaction();
+            db.close();
         }
     }
 
-        private static void RemoveMovie(Movie movie, Context context){
-            SQLiteOpenHelper sqLiteOpenHelper = new MoviesDbHelper(context);
-            SQLiteDatabase db = sqLiteOpenHelper.getWritableDatabase();
+    public static int deleteMovie(Movie movie, Context context){
+        SQLiteOpenHelper sqLiteOpenHelper = new MoviesDbHelper(context);
+        try(SQLiteDatabase db = sqLiteOpenHelper.getWritableDatabase();) {
             db.setForeignKeyConstraintsEnabled(true);
-            db.delete(MoviesContract.MovieEntry.TABLE_NAME,
-                    MoviesContract.MovieEntry.COLUMN_MOVIE_API_ID,
+            return db.delete(MoviesContract.MovieEntry.TABLE_NAME,
+                    MoviesContract.MovieEntry.COLUMN_MOVIE_API_ID + " = ?",
                     new String[]{String.valueOf(movie.getId())});
+        }
     }
 }
