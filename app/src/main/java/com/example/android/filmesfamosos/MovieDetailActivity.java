@@ -8,6 +8,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.res.Configuration;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,6 +32,7 @@ import com.example.android.filmesfamosos.model.Review;
 import com.example.android.filmesfamosos.model.Trailer;
 import com.example.android.filmesfamosos.network.ReviewService;
 import com.example.android.filmesfamosos.network.TrailerService;
+import com.example.android.filmesfamosos.utilities.FileSystemUtils;
 import com.example.android.filmesfamosos.utilities.MovieDatabaseUtils;
 import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
 import com.squareup.picasso.Picasso;
@@ -186,13 +188,38 @@ public class MovieDetailActivity extends AppCompatActivity implements
     }
 
     private void toggleFavorite(){
-//       Insert movie into database, set it to favorite and change the favorite icon
         if(!mCurrentMovie.getIsFavorite()) {
-            if(MovieDatabaseUtils.insertMovie(mCurrentMovie, this)>0)
+//            Save movie poster to internal storage
+            boolean successfulFileSave = FileSystemUtils.saveBitmapToInternalStorage(
+                    ((BitmapDrawable) mMoviePictureImageView.getDrawable()).getBitmap(),
+                    this,
+                    String.valueOf(mCurrentMovie.getId()) + ".jpg");
+//            Insert movie data into the database
+            long insertedMovieID = MovieDatabaseUtils.insertMovie(mCurrentMovie, this);
+//            TODO: Add error handling into these functions
+            MovieDatabaseUtils.bulkInsertReviews(mReviewAdapter.getReviewData().toArray(
+                    new Review[mReviewAdapter.getReviewData().size()]),
+                    String.valueOf(mCurrentMovie.getId()),
+                    this);
+            MovieDatabaseUtils.bulkInsertTrailers(mTrailerAdapter.getTrailerData().toArray(
+                    new Trailer[mTrailerAdapter.getTrailerData().size()]),
+                    String.valueOf(mCurrentMovie.getId()),
+                    this);
+//            If everything worked, set movie as favorite
+            if(insertedMovieID > 0 && successfulFileSave)
                 mCurrentMovie.setFavorite(true);
+            else{
+//                Undo operations case anything goes wrong
+                FileSystemUtils.deleteFileFromInternalStorage(FileSystemUtils.IMAGE_DIR,
+                        String.valueOf(mCurrentMovie.getId()) + ".jpg");
+                MovieDatabaseUtils.deleteMovie(mCurrentMovie,this);
+            }
         }else{
-            if(MovieDatabaseUtils.deleteMovie(mCurrentMovie, this)>0)
-                mCurrentMovie.setFavorite(false);
+//            Remove movie data and set favorite to false
+            FileSystemUtils.deleteFileFromInternalStorage(FileSystemUtils.IMAGE_DIR,
+                    String.valueOf(mCurrentMovie.getId()) + ".jpg");
+            MovieDatabaseUtils.deleteMovie(mCurrentMovie,this);
+            mCurrentMovie.setFavorite(false);
         }
     }
 

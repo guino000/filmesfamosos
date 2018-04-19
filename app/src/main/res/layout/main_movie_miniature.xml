@@ -20,7 +20,7 @@
             <ImageView
                 android:id="@+id/iv_miniature_img"
                 android:layout_width="match_parent"
-                android:layout_height="270dp"
+                android:layout_height="242dp"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/cd_movieMiniature"
                 android:scaleType="fitXY" />

@@ -1,14 +1,11 @@
 <resources>
     <string name="app_name">Famous Movies</string>
+    <!--Main activiy strings-->
     <string name="cd_movieMiniature">Movie Miniature</string>
     <string name="menu_title_sort_popularity">Sort by popularity</string>
     <string name="menu_title_sort_toprated">Sort by top rated</string>
     <string name="general_error_message">An error has occurred! Please check internet connection.</string>
-    <string name="date_short_date_format">MM/dd/yyyy</string>
-    <string name="movieapi_date_format">yyyy-MM-dd</string>
-    <string name="moviedetail_menu_release_date">Release date:&#160;</string>
-    <string name="moviedetail_menu_original_name">Original name:&#160;</string>
-    <string name="content_description_star_drawable">Rating star icon</string>
+    <string name="menu_title_see_favorites">See Favorites</string>
 
     <!--Strings to share data between activities-->
     <string name="intentres_name_movie">movie</string>
@@ -27,6 +24,9 @@
     <string name="trailer_error_msg">No trailers yet</string>
     <string name="movie_reviews_label">Reviews</string>
     <string name="reviews_error_msg">No reviews yet</string>
+    <string name="content_description_star_drawable">Rating star icon</string>
+    <string name="date_short_date_format">MM/dd/yyyy</string>
+    <string name="movieapi_date_format">yyyy-MM-dd</string>
 
     <!--Dummy strings for movie details activity-->
     <string name="dummy_movie_title">Movie Title</string>

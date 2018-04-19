@@ -25,7 +25,7 @@ public final class MovieDatabaseUtils {
         }
     }
 
-    private static void bulkInsertReviews(Review[] reviews, String movieID, Context context){
+    public static void bulkInsertReviews(Review[] reviews, String movieID, Context context){
 //        Get database from helper
         SQLiteOpenHelper sqLiteOpenHelper = new MoviesDbHelper(context);
         SQLiteDatabase db = sqLiteOpenHelper.getWritableDatabase();
@@ -46,7 +46,7 @@ public final class MovieDatabaseUtils {
         }
     }
 
-    private static void bulkInsertTrailers(Trailer[] trailers, String movieID, Context context){
+    public static void bulkInsertTrailers(Trailer[] trailers, String movieID, Context context){
 //        Get database from helper
         SQLiteOpenHelper sqLiteOpenHelper = new MoviesDbHelper(context);
         SQLiteDatabase db = sqLiteOpenHelper.getWritableDatabase();
