@@ -1,24 +1,20 @@
-package com.example.android.filmesfamosos.network;
+package com.example.android.filmesfamosos.services;
 
 import android.annotation.SuppressLint;
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 
-import com.example.android.filmesfamosos.MovieDetailActivity;
 import com.example.android.filmesfamosos.R;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.model.Trailer;
 import com.example.android.filmesfamosos.utilities.App;
 import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.example.android.filmesfamosos.network;
+package com.example.android.filmesfamosos.services;
 
 import java.io.IOException;
 import java.net.URL;

@@ -1,10 +1,5 @@
 package com.example.android.filmesfamosos;
 
-import com.example.android.filmesfamosos.model.Movie;
-import com.example.android.filmesfamosos.model.Title;
-import com.example.android.filmesfamosos.utilities.App;
-import com.example.android.filmesfamosos.utilities.MovieDatabaseUtils;
-
 import org.junit.Test;
 
 import static org.junit.Assert.*;

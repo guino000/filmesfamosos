@@ -1,13 +1,6 @@
 package com.example.android.filmesfamosos;
 
-import android.annotation.SuppressLint;
-import android.app.ActionBar;
-import android.app.LoaderManager;
-import android.content.AsyncTaskLoader;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.content.Loader;
-import android.content.res.Configuration;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,12 +10,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.filmesfamosos.adapters.ReviewAdapter;
 import com.example.android.filmesfamosos.adapters.TrailerAdapter;
@@ -30,11 +20,10 @@ import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.model.Movie;
 import com.example.android.filmesfamosos.model.Review;
 import com.example.android.filmesfamosos.model.Trailer;
-import com.example.android.filmesfamosos.network.ReviewService;
-import com.example.android.filmesfamosos.network.TrailerService;
+import com.example.android.filmesfamosos.services.ReviewService;
+import com.example.android.filmesfamosos.services.TrailerService;
 import com.example.android.filmesfamosos.utilities.FileSystemUtils;
-import com.example.android.filmesfamosos.utilities.MovieDatabaseUtils;
-import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
+import com.example.android.filmesfamosos.services.DatabaseService;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -42,7 +31,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 public class MovieDetailActivity extends AppCompatActivity implements
         AsyncTaskDelegate<ArrayList>,
@@ -195,30 +183,29 @@ public class MovieDetailActivity extends AppCompatActivity implements
                     this,
                     String.valueOf(mCurrentMovie.getId()) + ".jpg");
 //            Insert movie data into the database
-            long insertedMovieID = MovieDatabaseUtils.insertMovie(mCurrentMovie, this);
-//            TODO: Add error handling into these functions
-            MovieDatabaseUtils.bulkInsertReviews(mReviewAdapter.getReviewData().toArray(
+            long insertedMovieID = DatabaseService.insertMovie(mCurrentMovie, this);
+            boolean successfulInsertReviews =  DatabaseService.bulkInsertReviews(mReviewAdapter.getReviewData().toArray(
                     new Review[mReviewAdapter.getReviewData().size()]),
                     String.valueOf(mCurrentMovie.getId()),
                     this);
-            MovieDatabaseUtils.bulkInsertTrailers(mTrailerAdapter.getTrailerData().toArray(
+            boolean successfulInsertTrailers = DatabaseService.bulkInsertTrailers(mTrailerAdapter.getTrailerData().toArray(
                     new Trailer[mTrailerAdapter.getTrailerData().size()]),
                     String.valueOf(mCurrentMovie.getId()),
                     this);
 //            If everything worked, set movie as favorite
-            if(insertedMovieID > 0 && successfulFileSave)
+            if(insertedMovieID > 0 && successfulFileSave && successfulInsertReviews && successfulInsertTrailers)
                 mCurrentMovie.setFavorite(true);
             else{
 //                Undo operations case anything goes wrong
                 FileSystemUtils.deleteFileFromInternalStorage(FileSystemUtils.IMAGE_DIR,
                         String.valueOf(mCurrentMovie.getId()) + ".jpg");
-                MovieDatabaseUtils.deleteMovie(mCurrentMovie,this);
+                DatabaseService.deleteMovie(mCurrentMovie,this);
             }
         }else{
 //            Remove movie data and set favorite to false
             FileSystemUtils.deleteFileFromInternalStorage(FileSystemUtils.IMAGE_DIR,
                     String.valueOf(mCurrentMovie.getId()) + ".jpg");
-            MovieDatabaseUtils.deleteMovie(mCurrentMovie,this);
+            DatabaseService.deleteMovie(mCurrentMovie,this);
             mCurrentMovie.setFavorite(false);
         }
     }
@@ -232,6 +219,16 @@ public class MovieDetailActivity extends AppCompatActivity implements
     }
 
     private void loadReviewData(String movieID, String page){
+//        TODO: Load local reviews when they exist
+//        TODO: Check if movie parcel contains trailers and reviews
+        if(mCurrentMovie.getReviews() != null){
+            if(mCurrentMovie.getReviews().length > 0){
+                ArrayList<Review> localReviews = new ArrayList<>();
+                Collections.addAll(localReviews,mCurrentMovie.getReviews());
+                mReviewAdapter.setReviewData(localReviews);
+            }
+        }
+
         setReviewErrorMsgVisibility(false);
         setReviewProgressbarVisibility(true);
 
@@ -272,6 +269,15 @@ public class MovieDetailActivity extends AppCompatActivity implements
     }
 
     private void loadTrailerData(String movieID){
+//        TODO: Load local trailers when they exist
+        if(mCurrentMovie.getTrailers() != null){
+            if(mCurrentMovie.getTrailers().length > 0){
+                ArrayList<Trailer> localTrailers = new ArrayList<>();
+                Collections.addAll(localTrailers,mCurrentMovie.getTrailers());
+                mTrailerAdapter.setTrailerData(localTrailers);
+            }
+        }
+
         setTrailerErrorMsgVisibility(false);
         setTrailerProgressbarVisibility(true);
 

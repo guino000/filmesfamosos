@@ -7,8 +7,7 @@ import android.support.test.runner.AndroidJUnit4;
 import com.example.android.filmesfamosos.model.Movie;
 import com.example.android.filmesfamosos.model.Review;
 import com.example.android.filmesfamosos.model.Title;
-import com.example.android.filmesfamosos.utilities.App;
-import com.example.android.filmesfamosos.utilities.MovieDatabaseUtils;
+import com.example.android.filmesfamosos.services.DatabaseService;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +35,6 @@ public class ExampleInstrumentedTest {
                 new Title("Test", "Test"),
                 "").build();
         Review dummyReview = new Review("1","Me","Test","");
-        MovieDatabaseUtils.insertMovie(dummyMovie, InstrumentationRegistry.getTargetContext());
+        DatabaseService.insertMovie(dummyMovie, InstrumentationRegistry.getTargetContext());
     }
 }

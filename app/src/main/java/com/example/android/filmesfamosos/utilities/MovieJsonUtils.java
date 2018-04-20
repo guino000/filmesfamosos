@@ -215,7 +215,7 @@ public final class MovieJsonUtils {
 
     public static ContentValues getMovieContentValues(Movie movie){
         ContentValues movieEntryValues = new ContentValues();
-        movieEntryValues.put(MovieEntry.COLUMN_MOVIE_API_ID, movie.getId());
+        movieEntryValues.put(MovieEntry._ID, movie.getId());
         movieEntryValues.put(MovieEntry.COLUMN_ORIGINAL_TITLE, movie.getTitle().getOriginalTitle());
         movieEntryValues.put(MovieEntry.COLUMN_TITLE, movie.getTitle().getTitle());
         movieEntryValues.put(MovieEntry.COLUMN_OVERVIEW, movie.getOverview());

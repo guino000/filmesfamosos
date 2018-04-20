@@ -1,4 +1,4 @@
-package com.example.android.filmesfamosos.network;
+package com.example.android.filmesfamosos.services;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -14,9 +14,6 @@ import com.example.android.filmesfamosos.R;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.model.Review;
 import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
-import com.example.android.filmesfamosos.utilities.NetworkUtils;
-
-import org.json.JSONObject;
 
 import java.net.MalformedURLException;
 import java.net.URL;

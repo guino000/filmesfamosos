@@ -19,8 +19,8 @@ import android.widget.TextView;
 import com.example.android.filmesfamosos.adapters.MovieAdapter;
 import com.example.android.filmesfamosos.model.Movie;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
-import com.example.android.filmesfamosos.network.MovieService;
-import com.example.android.filmesfamosos.utilities.MovieUtils;
+import com.example.android.filmesfamosos.services.DatabaseService;
+import com.example.android.filmesfamosos.services.MovieService;
 import com.example.android.filmesfamosos.utilities.NetworkUtils;
 
 import java.util.ArrayList;
@@ -151,6 +151,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 loadMovieData(MovieService.SORT_BY_TOP_RATED,"1");
                 mCurrentSortingMethod = MovieService.SORT_BY_TOP_RATED;
                 break;
+            case R.id.action_see_favorites:
+                mMovieAdapter.setMovieData(new ArrayList<Movie>());
+                mScrollListener.resetState();
+                loadMovieData(MovieService.SORT_BY_FAVORITES, "1");
+                mCurrentSortingMethod = MovieService.SORT_BY_FAVORITES;
+                break;
         }
 
         return super.onOptionsItemSelected(item);
@@ -178,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
 //            Check if movies are favorites
             for (int i = 0; i < moviePage.size(); i++)
-                moviePage.get(i).setFavorite(MovieUtils.checkIsFavoriteMovie(moviePage.get(i), this));
+                moviePage.get(i).setFavorite(DatabaseService.checkIsFavoriteMovie(moviePage.get(i), this));
             currentMovies.addAll(moviePage);
 
 //            Insert movies on adapter with the correct favorite status
@@ -202,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private void loadMovieData(String sortingMethod, String page){
 //        Check internet connectivity
-        if(NetworkUtils.isOnline(this)) {
+        if(NetworkUtils.isOnline(this) || mCurrentSortingMethod.equals(MovieService.SORT_BY_FAVORITES)) {
             setErrorMessageVisibility(false);
             setLoadingBarVisibility(true);
 
