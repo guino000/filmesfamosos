@@ -41,6 +41,8 @@ public class Movie implements Parcelable{
         mVotes = in.readParcelable(Votes.class.getClassLoader());
         mReleaseDate = in.readString();
         mIsFavorite = in.readByte() != 0;
+        mReviews = in.createTypedArray(Review.CREATOR);
+        mTrailers = in.createTypedArray(Trailer.CREATOR);
     }
 
     public static final Creator<Movie> CREATOR = new Creator<Movie>() {
@@ -64,6 +66,8 @@ public class Movie implements Parcelable{
         dest.writeParcelable(mVotes, flags);
         dest.writeString(mReleaseDate);
         dest.writeByte((byte) (mIsFavorite ? 1 : 0));
+        dest.writeTypedArray(mReviews,flags);
+        dest.writeTypedArray(mTrailers,flags);
     }
 
     @Override

@@ -28,7 +28,7 @@ public final class DatabaseService {
                      null,
                      null,
                      null,
-                     null);){
+                     null)){
 //              Loop the cursor and create a movies array
                 cursor.moveToFirst();
                 Movie[] queryMovies = new Movie[cursor.getCount()];

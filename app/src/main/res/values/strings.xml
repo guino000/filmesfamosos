@@ -7,6 +7,9 @@
     <string name="general_error_message">An error has occurred! Please check internet connection.</string>
     <string name="menu_title_see_favorites">See Favorites</string>
 
+    <!--Movie API Strings-->
+    <string name="poster_url_root">http://image.tmdb.org/t/p/w185/</string>
+
     <!--Strings to share data between activities-->
     <string name="intentres_name_movie">movie</string>
 

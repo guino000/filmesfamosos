@@ -184,14 +184,22 @@ public class MovieDetailActivity extends AppCompatActivity implements
                     String.valueOf(mCurrentMovie.getId()) + ".jpg");
 //            Insert movie data into the database
             long insertedMovieID = DatabaseService.insertMovie(mCurrentMovie, this);
-            boolean successfulInsertReviews =  DatabaseService.bulkInsertReviews(mReviewAdapter.getReviewData().toArray(
-                    new Review[mReviewAdapter.getReviewData().size()]),
-                    String.valueOf(mCurrentMovie.getId()),
-                    this);
-            boolean successfulInsertTrailers = DatabaseService.bulkInsertTrailers(mTrailerAdapter.getTrailerData().toArray(
-                    new Trailer[mTrailerAdapter.getTrailerData().size()]),
-                    String.valueOf(mCurrentMovie.getId()),
-                    this);
+
+            boolean successfulInsertReviews = true;
+            if(mReviewAdapter.getReviewData() != null) {
+                successfulInsertReviews = DatabaseService.bulkInsertReviews(mReviewAdapter.getReviewData().toArray(
+                        new Review[mReviewAdapter.getReviewData().size()]),
+                        String.valueOf(mCurrentMovie.getId()),
+                        this);
+            }
+
+            boolean successfulInsertTrailers = true;
+            if(mTrailerAdapter.getTrailerData() != null) {
+                successfulInsertTrailers = DatabaseService.bulkInsertTrailers(mTrailerAdapter.getTrailerData().toArray(
+                        new Trailer[mTrailerAdapter.getTrailerData().size()]),
+                        String.valueOf(mCurrentMovie.getId()),
+                        this);
+            }
 //            If everything worked, set movie as favorite
             if(insertedMovieID > 0 && successfulFileSave && successfulInsertReviews && successfulInsertTrailers)
                 mCurrentMovie.setFavorite(true);
@@ -219,13 +227,15 @@ public class MovieDetailActivity extends AppCompatActivity implements
     }
 
     private void loadReviewData(String movieID, String page){
-//        TODO: Load local reviews when they exist
-//        TODO: Check if movie parcel contains trailers and reviews
+//        Check if movies already contains data
         if(mCurrentMovie.getReviews() != null){
             if(mCurrentMovie.getReviews().length > 0){
                 ArrayList<Review> localReviews = new ArrayList<>();
                 Collections.addAll(localReviews,mCurrentMovie.getReviews());
                 mReviewAdapter.setReviewData(localReviews);
+                setReviewErrorMsgVisibility(false);
+                setReviewErrorMsgVisibility(false);
+                return;
             }
         }
 
@@ -269,12 +279,15 @@ public class MovieDetailActivity extends AppCompatActivity implements
     }
 
     private void loadTrailerData(String movieID){
-//        TODO: Load local trailers when they exist
+//        Check if movies already contains data
         if(mCurrentMovie.getTrailers() != null){
             if(mCurrentMovie.getTrailers().length > 0){
                 ArrayList<Trailer> localTrailers = new ArrayList<>();
                 Collections.addAll(localTrailers,mCurrentMovie.getTrailers());
                 mTrailerAdapter.setTrailerData(localTrailers);
+                setTrailerErrorMsgVisibility(false);
+                setTrailerProgressbarVisibility(false);
+                return;
             }
         }
 

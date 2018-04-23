@@ -100,7 +100,7 @@ public class MovieService implements LoaderManager.LoaderCallbacks<List<Movie>>{
                         String apiKey = App.getContext().getString(R.string.themoviedb);
                         URL moviesRequestUrl = buildURL(sorting, page, apiKey);
                         String jsonMovieResponse = NetworkService.getResponseFromHttpUrl(moviesRequestUrl);
-                        return MovieJsonUtils.getMoviesFromJson(jsonMovieResponse);
+                        return MovieJsonUtils.getMoviesFromJson(jsonMovieResponse,mContext);
                     }
                 }catch (Exception e){
                     e.printStackTrace();

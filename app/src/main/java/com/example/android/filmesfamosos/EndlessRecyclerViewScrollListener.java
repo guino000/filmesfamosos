@@ -1,5 +1,7 @@
 package com.example.android.filmesfamosos;
 
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,7 +16,7 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 *
 ***************************************************************************************/
 
-public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnScrollListener {
+public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnScrollListener{
     // The minimum amount of items to have below your current scroll position
     // before loading more.
     private int visibleThreshold = 3;
@@ -26,6 +28,9 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
     private boolean loading = true;
     // Sets the starting page index
     private int startingPageIndex = 0;
+//    State bundle keys
+    public static final String KEY_CURRENT_PAGE = "current_page";
+    public static final String KEY_PREVIOUS_TOTAL_ITEMS = "previous_total_items";
 
     private final RecyclerView.LayoutManager mLayoutManager;
 
@@ -111,5 +116,20 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
 
     // Defines the process for actually loading more data based on page
     public abstract void onLoadMore(int page, int totalItemsCount, RecyclerView view);
+
+    public Bundle getState(){
+        Bundle stateBundle = new Bundle();
+        stateBundle.putInt(KEY_CURRENT_PAGE, currentPage);
+        stateBundle.putInt(KEY_PREVIOUS_TOTAL_ITEMS,previousTotalItemCount);
+        return stateBundle;
+    }
+
+    public void setState(Bundle stateBundle){
+        if(stateBundle.containsKey(KEY_CURRENT_PAGE) && stateBundle.containsKey(KEY_PREVIOUS_TOTAL_ITEMS)) {
+            currentPage = stateBundle.getInt(KEY_CURRENT_PAGE);
+            previousTotalItemCount = stateBundle.getInt(KEY_PREVIOUS_TOTAL_ITEMS);
+            loading = false;
+        }
+    }
 
 }

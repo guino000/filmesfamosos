@@ -1,50 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_movie_miniature"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:layout_height="wrap_content">
 
-    <android.support.v7.widget.CardView
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+    <ProgressBar
+        android:id="@+id/pb_miniature_placeholder"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/cardView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        card_view:cardBackgroundColor="@color/cardViewBackColor"
         card_view:cardElevation="4dp"
         card_view:cardUseCompatPadding="true"
-        android:layout_gravity="center"
-        card_view:cardBackgroundColor="@color/cardViewBackColor">
+        card_view:layout_constraintStart_toStartOf="parent"
+        card_view:layout_constraintTop_toTopOf="parent">
 
-        <RelativeLayout
+
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/iv_miniature_img"
                 android:layout_width="match_parent"
-                android:layout_height="242dp"
+                android:layout_height="246dp"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/cd_movieMiniature"
-                android:scaleType="fitXY" />
+                android:scaleType="fitXY"
+                card_view:layout_constraintStart_toStartOf="parent"
+                card_view:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tv_miniature_text"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:gravity="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:singleLine="true"
                 android:ellipsize="end"
-                android:layout_below="@id/iv_miniature_img"/>
-        </RelativeLayout>
+                android:gravity="center"
+                android:maxLines="1"
+                android:padding="5dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                card_view:layout_constraintEnd_toEndOf="@+id/iv_miniature_img"
+                card_view:layout_constraintStart_toStartOf="parent"
+                card_view:layout_constraintTop_toBottomOf="@+id/iv_miniature_img" />
+        </android.support.constraint.ConstraintLayout>
+
     </android.support.v7.widget.CardView>
 
-    <ProgressBar
-        android:id="@+id/pb_miniature_placeholder"
-        android:layout_width="120dp"
-        android:layout_gravity="center"
-        android:layout_height="wrap_content"
-        android:visibility="visible"/>
-
-</LinearLayout>
+</android.support.constraint.ConstraintLayout>

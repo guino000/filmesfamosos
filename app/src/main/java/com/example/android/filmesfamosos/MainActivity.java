@@ -3,12 +3,14 @@ package com.example.android.filmesfamosos;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.PersistableBundle;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -41,6 +43,11 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private static final int REQUEST_CODE_MOVIE_DETAIL = 1;
 //    Loader ID
     private final static int ID_MOVIE_LOADER = 11;
+//    Saved instance Keys
+    private static final String SS_KEY_SORTING_METHOD = "sorting_method";
+    private static final String SS_KEY_CURRENT_MOVIES = "current_movies";
+    private static final String SS_KEY_SCROLL_LISTENER = "scroll_listener";
+    private static final String SS_KEY_SCROLL_POSITION = "scroll_position";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +58,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mLoadingBar = findViewById(R.id.pb_loading);
         mErrorMessageTextView = findViewById(R.id.tv_error_message);
         mRvMiniaturesGrid = findViewById(R.id.rvMovies);
-
-//        Initialize configurations
-        if(mCurrentSortingMethod == null)
-            mCurrentSortingMethod = MovieService.SORT_BY_POPULARITY;
 
         //Set up Layout Manager
         if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -69,15 +72,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRvMiniaturesGrid.setAdapter(mMovieAdapter);
         mRvMiniaturesGrid.setVisibility(View.VISIBLE);
 
-        //Set Up Endless Scroll Listener
-        mScrollListener = new EndlessRecyclerViewScrollListener((GridLayoutManager) mRvMiniaturesGrid.getLayoutManager()) {
-            @Override
-            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                loadMovieData(mCurrentSortingMethod, String.valueOf(page) + 1);
-            }
-        };
-        mRvMiniaturesGrid.addOnScrollListener(mScrollListener);
-
         //Set up swipe refresh
         mSwipeRefreshLayout = findViewById(R.id.sr_swipeRefreshMovies);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.secondaryColor);
@@ -90,14 +84,37 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 }
         );
 
-        //Initialize data in case it's empty
-        if(mMovieAdapter.getMovieData().isEmpty()) {
+        //Set Up Endless Scroll Listener
+        mScrollListener = new EndlessRecyclerViewScrollListener((GridLayoutManager) mRvMiniaturesGrid.getLayoutManager()) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                loadMovieData(mCurrentSortingMethod, String.valueOf(page) + 1);
+            }
+        };
+        mRvMiniaturesGrid.addOnScrollListener(mScrollListener);
+
+//        Recover app state
+        if(savedInstanceState != null){
+            mCurrentSortingMethod = savedInstanceState.getString(SS_KEY_SORTING_METHOD);
+            mMovieAdapter.setMovieData(savedInstanceState.<Movie>getParcelableArrayList(SS_KEY_CURRENT_MOVIES));
+            mScrollListener.setState(savedInstanceState.getBundle(SS_KEY_SCROLL_LISTENER));
+            mRvMiniaturesGrid.scrollToPosition(savedInstanceState.getInt(SS_KEY_SCROLL_POSITION));
+        }else {
+            mCurrentSortingMethod = MovieService.SORT_BY_POPULARITY;
             mScrollListener.resetState();
         }
 
 //        Initialize Movies LoaderCallbacks
         mMovieServiceLoaderCallbacks = new MovieService(this, this);
         loadMovieData(mCurrentSortingMethod, "1");
+    }
+
+    @Override
+    protected void onResume() {
+//        Refresh favorite movies view in case user has deleted a favorite
+        if(mCurrentSortingMethod.equals(MovieService.SORT_BY_FAVORITES))
+            refreshMovieData();
+        super.onResume();
     }
 
     @Override
@@ -163,11 +180,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString(SS_KEY_SORTING_METHOD, mCurrentSortingMethod);
+        outState.putParcelableArrayList(SS_KEY_CURRENT_MOVIES, mMovieAdapter.getMovieData());
+        outState.putBundle(SS_KEY_SCROLL_LISTENER,mScrollListener.getState());
+        outState.putInt(SS_KEY_SCROLL_POSITION,
+                ((GridLayoutManager) mRvMiniaturesGrid.getLayoutManager()).findLastVisibleItemPosition());
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public void processFinish(List<Movie> moviePage, Loader callerLoader) {
         setLoadingBarVisibility(false);
         if(!moviePage.isEmpty()){
             setErrorMessageVisibility(false);
-
 //            Check if the data is already loaded
             ArrayList<Movie> currentMovies = mMovieAdapter.getMovieData();
             Movie checkMovie = moviePage.get(0);
@@ -178,15 +204,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                     break;
                 }
             }
-
 //            Exit if the data is already loaded
             if(movieExists) return;
-
 //            Check if movies are favorites
             for (int i = 0; i < moviePage.size(); i++)
                 moviePage.get(i).setFavorite(DatabaseService.checkIsFavoriteMovie(moviePage.get(i), this));
             currentMovies.addAll(moviePage);
-
 //            Insert movies on adapter with the correct favorite status
             mMovieAdapter.setMovieData(currentMovies);
         }else if (!mMovieAdapter.getMovieData().isEmpty()){

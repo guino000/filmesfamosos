@@ -1,7 +1,9 @@
 package com.example.android.filmesfamosos.utilities;
 
 import android.content.ContentValues;
+import android.content.Context;
 
+import com.example.android.filmesfamosos.R;
 import com.example.android.filmesfamosos.model.Movie;
 import com.example.android.filmesfamosos.model.MoviesContract.*;
 import com.example.android.filmesfamosos.model.Review;
@@ -147,7 +149,7 @@ public final class MovieJsonUtils {
         return trailerEntryValues;
     }
 
-    public static ArrayList<Movie> getMoviesFromJson(String jsonString) throws JSONException {
+    public static ArrayList<Movie> getMoviesFromJson(String jsonString, Context context) throws JSONException {
         final String RESULTS = "results";
         final String ERROR_CODE = "status_code";
         final String MOVIE_ID = "id";
@@ -158,7 +160,6 @@ public final class MovieJsonUtils {
         final String MOVIE_VOTE_AVERAGE = "vote_average";
         final String MOVIE_POPULARITY = "popularity";
         final String MOVIE_RELEASE_DATE = "release_date";
-        final String POSTER_PATH_ROOT = "http://image.tmdb.org/t/p/w185/";
 
         ArrayList<Movie> parsedMovies = new ArrayList<>();
         JSONObject moviesJson = new JSONObject(jsonString);
@@ -186,7 +187,7 @@ public final class MovieJsonUtils {
                             movieJsonObj.optString(MOVIE_TITLE),
                             movieJsonObj.optString(MOVIE_ORIGINAL_TITLE)
                     ),
-                    POSTER_PATH_ROOT + movieJsonObj.optString(MOVIE_POSTER_PATH)
+                    context.getString(R.string.poster_url_root) + movieJsonObj.optString(MOVIE_POSTER_PATH)
                     )
                     .setOverview(movieJsonObj.optString(MOVIE_OVERVIEW))
                     .setVotes(new Votes(

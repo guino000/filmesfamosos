@@ -2,13 +2,15 @@ package com.example.android.filmesfamosos.model;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.example.android.filmesfamosos.R;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class Trailer {
+public class Trailer implements Parcelable{
     private String mId;
     private String mKey;
     private String mName;
@@ -23,7 +25,27 @@ public class Trailer {
         mSize = size;
     }
 
-//    Build video Uri for youtube
+    protected Trailer(Parcel in) {
+        mId = in.readString();
+        mKey = in.readString();
+        mName = in.readString();
+        mSite = in.readString();
+        mSize = in.readInt();
+    }
+
+    public static final Creator<Trailer> CREATOR = new Creator<Trailer>() {
+        @Override
+        public Trailer createFromParcel(Parcel in) {
+            return new Trailer(in);
+        }
+
+        @Override
+        public Trailer[] newArray(int size) {
+            return new Trailer[size];
+        }
+    };
+
+    //    Build video Uri for youtube
     public Uri getYoutubeURL(Context context){
         return Uri.parse(context.getString(R.string.youtube_url))
                 .buildUpon()
@@ -36,4 +58,18 @@ public class Trailer {
     public String getName(){return mName;}
     public String getSite(){return mSite;}
     public int getSize(){return mSize;}
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mId);
+        dest.writeString(mKey);
+        dest.writeString(mName);
+        dest.writeString(mSite);
+        dest.writeInt(mSize);
+    }
 }
