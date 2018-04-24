@@ -231,7 +231,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
     private void loadMovieData(String sortingMethod, String page){
 //        Check internet connectivity
-        if(NetworkUtils.isOnline(this) || mCurrentSortingMethod.equals(MovieService.SORT_BY_FAVORITES)) {
+        if(NetworkUtils.isOnline(this) || sortingMethod.equals(MovieService.SORT_BY_FAVORITES)) {
             setErrorMessageVisibility(false);
             setLoadingBarVisibility(true);
 
