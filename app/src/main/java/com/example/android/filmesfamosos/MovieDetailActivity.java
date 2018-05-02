@@ -1,7 +1,10 @@
 package com.example.android.filmesfamosos;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,13 +20,16 @@ import android.widget.TextView;
 import com.example.android.filmesfamosos.adapters.ReviewAdapter;
 import com.example.android.filmesfamosos.adapters.TrailerAdapter;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
+import com.example.android.filmesfamosos.loaders.ReviewCursorLoader;
+import com.example.android.filmesfamosos.loaders.TrailerCursorLoader;
 import com.example.android.filmesfamosos.model.Movie;
+import com.example.android.filmesfamosos.model.MoviesContract;
 import com.example.android.filmesfamosos.model.Review;
 import com.example.android.filmesfamosos.model.Trailer;
-import com.example.android.filmesfamosos.services.ReviewService;
-import com.example.android.filmesfamosos.services.TrailerService;
+import com.example.android.filmesfamosos.loaders.ReviewAsyncLoader;
+import com.example.android.filmesfamosos.loaders.TrailerAsyncLoader;
 import com.example.android.filmesfamosos.utilities.FileSystemUtils;
-import com.example.android.filmesfamosos.services.DatabaseService;
+import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -31,13 +37,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
+//TODO: Adapt this activity to use the new dual dataset adapter
 public class MovieDetailActivity extends AppCompatActivity implements
-        AsyncTaskDelegate<ArrayList>,
+        AsyncTaskDelegate,
         TrailerAdapter.TrailerAdapterClickHandler{
 //    Loader ID's
     private static final int TRAILER_LOADER_ID = 21;
-    private static final int REVIEW_LOADER_ID = 22;
+    private static final int TRAILER_CURSOR_LOADER_ID = 22;
+    private static final int REVIEW_LOADER_ID = 23;
+    private static final int REVIEW_CURSOR_LOADER_ID = 24;
 
 //   Member variables for overall activity
     private ImageView mMoviePictureImageView;
@@ -51,13 +61,15 @@ public class MovieDetailActivity extends AppCompatActivity implements
     private TextView mTrailerErrorMsg;
     private RecyclerView mTrailerRecyclerView;
     private TrailerAdapter mTrailerAdapter;
-    private TrailerService mTrailerService;
+    private TrailerAsyncLoader mTrailerAsyncLoader;
+    private TrailerCursorLoader mTrailerCursorLoader;
     private ProgressBar mTrailerProgressBar;
 //    Member variables for reviews section
     private TextView mReviewErrorMsg;
     private RecyclerView mReviewRecyclerView;
     private ReviewAdapter mReviewAdapter;
-    private ReviewService mReviewService;
+    private ReviewAsyncLoader mReviewAsyncLoader;
+    private ReviewCursorLoader mReviewCursorLoader;
     private ProgressBar mReviewProgressBar;
     private EndlessRecyclerViewScrollListener mReviewScrollListener;
 
@@ -88,12 +100,12 @@ public class MovieDetailActivity extends AppCompatActivity implements
         mReviewRecyclerView.setHasFixedSize(true);
 
 //        Set trailer recyclerView adapter
-        mTrailerAdapter = new TrailerAdapter(this);
+        mTrailerAdapter = new TrailerAdapter(this, TrailerAdapter.DATASET_LIST);
         mTrailerRecyclerView.setAdapter(mTrailerAdapter);
         mTrailerRecyclerView.setVisibility(View.VISIBLE);
         mTrailerRecyclerView.setNestedScrollingEnabled(false);
 //        Set review rv adapter
-        mReviewAdapter = new ReviewAdapter();
+        mReviewAdapter = new ReviewAdapter(ReviewAdapter.DATASET_LIST);
         mReviewRecyclerView.setAdapter(mReviewAdapter);
         mReviewRecyclerView.setVisibility(View.VISIBLE);
         mReviewRecyclerView.setNestedScrollingEnabled(false);
@@ -126,16 +138,27 @@ public class MovieDetailActivity extends AppCompatActivity implements
                 }
             };
 
+//            Set adapter dataset type depending if movie is favorite or not
+            if(mCurrentMovie.getIsFavorite()) {
+                mTrailerAdapter.setCurrentDatasetType(TrailerAdapter.DATASET_CURSOR);
+                mReviewAdapter.setCurrentDatasetType(ReviewAdapter.DATASET_CURSOR);
+            }else{
+                mTrailerAdapter.setCurrentDatasetType(TrailerAdapter.DATASET_LIST);
+                mReviewAdapter.setCurrentDatasetType(ReviewAdapter.DATASET_LIST);
+            }
+
 //            Create back button on actionbar
             android.support.v7.app.ActionBar actionBar = getSupportActionBar();
             actionBar.setDisplayHomeAsUpEnabled(true);
 
 //            Initialize trailer loader
-            mTrailerService = new TrailerService(this, this);
+            mTrailerAsyncLoader = new TrailerAsyncLoader(this, this);
+            mTrailerCursorLoader = new TrailerCursorLoader(this,this);
             loadTrailerData(String.valueOf(mCurrentMovie.getId()));
 
 //            Initialize review loader
-            mReviewService = new ReviewService(this,this);
+            mReviewAsyncLoader = new ReviewAsyncLoader(this,this);
+            mReviewCursorLoader = new ReviewCursorLoader(this,this);
             loadReviewData(String.valueOf(mCurrentMovie.getId()), "1");
         }
     }
@@ -178,42 +201,61 @@ public class MovieDetailActivity extends AppCompatActivity implements
     private void toggleFavorite(){
         if(!mCurrentMovie.getIsFavorite()) {
 //            Save movie poster to internal storage
-            boolean successfulFileSave = FileSystemUtils.saveBitmapToInternalStorage(
+            boolean posterSaveOK = FileSystemUtils.saveBitmapToInternalStorage(
                     ((BitmapDrawable) mMoviePictureImageView.getDrawable()).getBitmap(),
                     this,
                     String.valueOf(mCurrentMovie.getId()) + ".jpg");
-//            Insert movie data into the database
-            long insertedMovieID = DatabaseService.insertMovie(mCurrentMovie, this);
 
-            boolean successfulInsertReviews = true;
+//            Insert movie data into database
+            ContentValues movieValues = MovieJsonUtils.getMovieContentValues(mCurrentMovie);
+            Uri insertedMovieURI = getContentResolver().insert(
+                    Uri.withAppendedPath(MoviesContract.BASE_CONTENT_URI,MoviesContract.PATH_MOVIE),
+                    movieValues);
+            boolean insertMovieOK = !insertedMovieURI.getLastPathSegment().equals("-1");
+
+//            Insert review data into database
+            boolean insertReviewOK = true;
             if(mReviewAdapter.getReviewData() != null) {
-                successfulInsertReviews = DatabaseService.bulkInsertReviews(mReviewAdapter.getReviewData().toArray(
-                        new Review[mReviewAdapter.getReviewData().size()]),
-                        String.valueOf(mCurrentMovie.getId()),
-                        this);
+                for (Review review : mReviewAdapter.getReviewData()) {
+                    ContentValues reviewValues = MovieJsonUtils.getReviewContentValues(review, String.valueOf(mCurrentMovie.getId()));
+                    Uri insertedReviewURI = getContentResolver().insert(
+                            Uri.withAppendedPath(insertedMovieURI, MoviesContract.PATH_REVIEW),
+                            reviewValues);
+                    if (insertedReviewURI.getLastPathSegment().equals("-1") && insertReviewOK)
+                        insertReviewOK = false;
+                }
             }
 
-            boolean successfulInsertTrailers = true;
+//            Insert trailer data into database
+            boolean insertTrailerOK = true;
             if(mTrailerAdapter.getTrailerData() != null) {
-                successfulInsertTrailers = DatabaseService.bulkInsertTrailers(mTrailerAdapter.getTrailerData().toArray(
-                        new Trailer[mTrailerAdapter.getTrailerData().size()]),
-                        String.valueOf(mCurrentMovie.getId()),
-                        this);
+                for (Trailer trailer : mTrailerAdapter.getTrailerData()) {
+                    ContentValues trailerValues = MovieJsonUtils.getTrailerContentValues(trailer, String.valueOf(mCurrentMovie.getId()));
+                    Uri insertedTrailerURI = getContentResolver().insert(
+                            Uri.withAppendedPath(insertedMovieURI, MoviesContract.PATH_TRAILER),
+                            trailerValues);
+                    if (insertedTrailerURI.getLastPathSegment().equals("-1") && insertTrailerOK)
+                        insertTrailerOK = false;
+                }
             }
+
 //            If everything worked, set movie as favorite
-            if(insertedMovieID > 0 && successfulFileSave && successfulInsertReviews && successfulInsertTrailers)
+            if(posterSaveOK && insertMovieOK && insertReviewOK && insertTrailerOK)
                 mCurrentMovie.setFavorite(true);
             else{
 //                Undo operations case anything goes wrong
                 FileSystemUtils.deleteFileFromInternalStorage(FileSystemUtils.IMAGE_DIR,
                         String.valueOf(mCurrentMovie.getId()) + ".jpg");
-                DatabaseService.deleteMovie(mCurrentMovie,this);
+                getContentResolver().delete(insertedMovieURI,null,null);
             }
         }else{
 //            Remove movie data and set favorite to false
             FileSystemUtils.deleteFileFromInternalStorage(FileSystemUtils.IMAGE_DIR,
                     String.valueOf(mCurrentMovie.getId()) + ".jpg");
-            DatabaseService.deleteMovie(mCurrentMovie,this);
+            getContentResolver().delete(
+                    MoviesContract.MovieEntry.buildMovieUriWithId(String.valueOf(mCurrentMovie.getId())),
+                    null,
+                    null);
             mCurrentMovie.setFavorite(false);
         }
     }
@@ -227,34 +269,76 @@ public class MovieDetailActivity extends AppCompatActivity implements
     }
 
     private void loadReviewData(String movieID, String page){
-//        Check if movies already contains data
-        if(mCurrentMovie.getReviews() != null){
-            if(mCurrentMovie.getReviews().length > 0){
-                ArrayList<Review> localReviews = new ArrayList<>();
-                Collections.addAll(localReviews,mCurrentMovie.getReviews());
-                mReviewAdapter.setReviewData(localReviews);
-                setReviewErrorMsgVisibility(false);
-                setReviewErrorMsgVisibility(false);
-                return;
-            }
-        }
-
         setReviewErrorMsgVisibility(false);
         setReviewProgressbarVisibility(true);
 
-//        Create bundle for loader
         Bundle reviewBundle = new Bundle();
-        reviewBundle.putString(ReviewService.KEY_BUNDLE_MOVIE_ID, movieID);
-        reviewBundle.putString(ReviewService.KEY_BUNDLE_PAGE, page);
 
-//        Initialize or restart loader
+        switch (mReviewAdapter.getCurrentDatasetType()){
+            case ReviewAdapter.DATASET_LIST:
+                reviewBundle.putString(ReviewAsyncLoader.KEY_BUNDLE_MOVIE_ID, movieID);
+                reviewBundle.putString(ReviewAsyncLoader.KEY_BUNDLE_PAGE, page);
+                initializeOrRestartLoader(REVIEW_LOADER_ID, reviewBundle);
+                break;
+            case ReviewAdapter.DATASET_CURSOR:
+                reviewBundle.putString(ReviewCursorLoader.KEY_BUNDLE_MOVIE_ID, movieID);
+                initializeOrRestartLoader(REVIEW_CURSOR_LOADER_ID, reviewBundle);
+                break;
+            default:
+                throw new UnsupportedOperationException("Not supported yet.");
+        }
+    }
+
+    private void loadTrailerData(String movieID){
+        setTrailerErrorMsgVisibility(false);
+        setTrailerProgressbarVisibility(true);
+
+        Bundle trailerBundle = new Bundle();
+
+        switch (mTrailerAdapter.getCurrentDatasetType()){
+            case TrailerAdapter.DATASET_LIST:
+                trailerBundle.putString(TrailerAsyncLoader.KEY_MOVIE_ID, movieID);
+                initializeOrRestartLoader(TRAILER_LOADER_ID, trailerBundle);
+                break;
+            case TrailerAdapter.DATASET_CURSOR:
+                trailerBundle.putString(TrailerCursorLoader.KEY_BUNDLE_MOVIE_ID, movieID);
+                initializeOrRestartLoader(TRAILER_CURSOR_LOADER_ID, trailerBundle);
+                break;
+            default:
+                throw new UnsupportedOperationException("Not supported yet.");
+        }
+    }
+
+    private void initializeOrRestartLoader(int loaderID, Bundle args){
+        android.support.v4.app.LoaderManager.LoaderCallbacks callbacks;
+        switch (loaderID){
+            case REVIEW_LOADER_ID:
+                callbacks = mReviewAsyncLoader;
+                getSupportLoaderManager().destroyLoader(REVIEW_CURSOR_LOADER_ID);
+                break;
+            case REVIEW_CURSOR_LOADER_ID:
+                callbacks = mReviewCursorLoader;
+                getSupportLoaderManager().destroyLoader(REVIEW_LOADER_ID);
+                break;
+            case TRAILER_LOADER_ID:
+                callbacks = mTrailerAsyncLoader;
+                getSupportLoaderManager().destroyLoader(TRAILER_CURSOR_LOADER_ID);
+                break;
+            case TRAILER_CURSOR_LOADER_ID:
+                callbacks = mTrailerCursorLoader;
+                getSupportLoaderManager().destroyLoader(TRAILER_LOADER_ID);
+                break;
+            default:
+                throw new UnsupportedOperationException("Load does not exist!");
+        }
+
         try{
-            if(getSupportLoaderManager().getLoader(REVIEW_LOADER_ID).isStarted())
-                getSupportLoaderManager().restartLoader(REVIEW_LOADER_ID, reviewBundle, mReviewService);
+            if(getSupportLoaderManager().getLoader(loaderID).isStarted())
+                getSupportLoaderManager().restartLoader(loaderID, args, callbacks);
             else
-                getSupportLoaderManager().initLoader(REVIEW_LOADER_ID, reviewBundle, mReviewService);
+                getSupportLoaderManager().initLoader(loaderID, args, callbacks);
         }catch (NullPointerException e){
-            getSupportLoaderManager().initLoader(REVIEW_LOADER_ID, reviewBundle, mReviewService);
+            getSupportLoaderManager().initLoader(loaderID, args, callbacks);
         }
     }
 
@@ -275,37 +359,6 @@ public class MovieDetailActivity extends AppCompatActivity implements
         else {
             mReviewErrorMsg.setVisibility(View.INVISIBLE);
             mReviewRecyclerView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void loadTrailerData(String movieID){
-//        Check if movies already contains data
-        if(mCurrentMovie.getTrailers() != null){
-            if(mCurrentMovie.getTrailers().length > 0){
-                ArrayList<Trailer> localTrailers = new ArrayList<>();
-                Collections.addAll(localTrailers,mCurrentMovie.getTrailers());
-                mTrailerAdapter.setTrailerData(localTrailers);
-                setTrailerErrorMsgVisibility(false);
-                setTrailerProgressbarVisibility(false);
-                return;
-            }
-        }
-
-        setTrailerErrorMsgVisibility(false);
-        setTrailerProgressbarVisibility(true);
-
-//        Create bundle for loader
-        Bundle trailerBundle = new Bundle();
-        trailerBundle.putString(TrailerService.KEY_MOVIE_ID, movieID);
-
-//        Initialize or restart loader
-        try{
-            if(getSupportLoaderManager().getLoader(TRAILER_LOADER_ID).isStarted())
-                getSupportLoaderManager().restartLoader(TRAILER_LOADER_ID, trailerBundle, mTrailerService);
-            else
-                getSupportLoaderManager().initLoader(TRAILER_LOADER_ID, trailerBundle, mTrailerService);
-        }catch (NullPointerException e){
-            getSupportLoaderManager().initLoader(TRAILER_LOADER_ID, trailerBundle, mTrailerService);
         }
     }
 
@@ -330,19 +383,37 @@ public class MovieDetailActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void processFinish(ArrayList newData, android.support.v4.content.Loader callerLoader) {
+    public void processFinish(Object newData, android.support.v4.content.Loader callerLoader) {
         switch (callerLoader.getId()){
             case TRAILER_LOADER_ID:
+                ArrayList<Trailer> newTrailerList = (ArrayList<Trailer>) newData;
                 setTrailerProgressbarVisibility(false);
-                if(!newData.isEmpty())
-                    mTrailerAdapter.setTrailerData(newData);
+                if (!newTrailerList.isEmpty())
+                    mTrailerAdapter.setTrailerData(newTrailerList);
                 else
                     setTrailerErrorMsgVisibility(true);
                 break;
             case REVIEW_LOADER_ID:
+                ArrayList<Review> newReviewData = (ArrayList<Review>) newData;
                 setReviewProgressbarVisibility(false);
-                if(!newData.isEmpty())
-                    mReviewAdapter.setReviewData(newData);
+                if(!newReviewData.isEmpty())
+                    mReviewAdapter.setReviewData(newReviewData);
+                else
+                    setReviewErrorMsgVisibility(true);
+                break;
+            case TRAILER_CURSOR_LOADER_ID:
+                Cursor newTrailerCursor = (Cursor) newData;
+                setTrailerProgressbarVisibility(false);
+                if(newTrailerCursor.getCount() > 0)
+                    mTrailerAdapter.swapCursor(newTrailerCursor);
+                else
+                    setTrailerErrorMsgVisibility(true);
+                break;
+            case REVIEW_CURSOR_LOADER_ID:
+                Cursor newReviewCursor = (Cursor) newData;
+                setReviewProgressbarVisibility(false);
+                if(newReviewCursor.getCount() > 0)
+                    mReviewAdapter.swapCursor(newReviewCursor);
                 else
                     setReviewErrorMsgVisibility(true);
                 break;

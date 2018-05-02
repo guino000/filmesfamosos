@@ -3,14 +3,13 @@ package com.example.android.filmesfamosos;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.PersistableBundle;
+import android.database.Cursor;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,15 +21,16 @@ import com.example.android.filmesfamosos.adapters.MovieAdapter;
 import com.example.android.filmesfamosos.model.Movie;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.services.DatabaseService;
-import com.example.android.filmesfamosos.services.MovieService;
+import com.example.android.filmesfamosos.loaders.MovieCursorLoader;
+import com.example.android.filmesfamosos.loaders.MovieAsyncLoader;
 import com.example.android.filmesfamosos.utilities.NetworkUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, AsyncTaskDelegate<List<Movie>> {
+public class MainActivity extends AppCompatActivity implements MovieAdapter.MovieAdapterOnClickHandler, AsyncTaskDelegate {
 //    member Variables
-    private MovieService mMovieServiceLoaderCallbacks;
+    private MovieAsyncLoader mMovieAsyncLoaderLoaderCallbacks;
+    private MovieCursorLoader mFavoriteServiceLoaderCallbacks;
     private RecyclerView mRvMiniaturesGrid;
     private MovieAdapter mMovieAdapter;
     private ProgressBar mLoadingBar;
@@ -43,11 +43,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private static final int REQUEST_CODE_MOVIE_DETAIL = 1;
 //    Loader ID
     private final static int ID_MOVIE_LOADER = 11;
+    private final static int ID_FAVORITES_LOADER = 12;
 //    Saved instance Keys
     private static final String SS_KEY_SORTING_METHOD = "sorting_method";
     private static final String SS_KEY_CURRENT_MOVIES = "current_movies";
     private static final String SS_KEY_SCROLL_LISTENER = "scroll_listener";
     private static final String SS_KEY_SCROLL_POSITION = "scroll_position";
+//    Sorting method keys
+    public static final String SORT_BY_POPULARITY = "popular";
+    public static final String SORT_BY_TOP_RATED = "top_rated";
+    public static final String SORT_BY_FAVORITES = "favorites";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mRvMiniaturesGrid.setHasFixedSize(true);
 
         //Set up Adapter to Recycler View
-        mMovieAdapter = new MovieAdapter(this);
+        mMovieAdapter = new MovieAdapter(this, MovieAdapter.DATASET_LIST);
         mRvMiniaturesGrid.setAdapter(mMovieAdapter);
         mRvMiniaturesGrid.setVisibility(View.VISIBLE);
 
@@ -100,19 +105,20 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             mScrollListener.setState(savedInstanceState.getBundle(SS_KEY_SCROLL_LISTENER));
             mRvMiniaturesGrid.scrollToPosition(savedInstanceState.getInt(SS_KEY_SCROLL_POSITION));
         }else {
-            mCurrentSortingMethod = MovieService.SORT_BY_POPULARITY;
+            mCurrentSortingMethod = SORT_BY_POPULARITY;
             mScrollListener.resetState();
         }
 
 //        Initialize Movies LoaderCallbacks
-        mMovieServiceLoaderCallbacks = new MovieService(this, this);
+        mMovieAsyncLoaderLoaderCallbacks = new MovieAsyncLoader(this, this);
+        mFavoriteServiceLoaderCallbacks  = new MovieCursorLoader(this,this);
         loadMovieData(mCurrentSortingMethod, "1");
     }
 
     @Override
     protected void onResume() {
 //        Refresh favorite movies view in case user has deleted a favorite
-        if(mCurrentSortingMethod.equals(MovieService.SORT_BY_FAVORITES))
+        if(mCurrentSortingMethod.equals(SORT_BY_FAVORITES))
             refreshMovieData();
         super.onResume();
     }
@@ -136,15 +142,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public void onClick(Movie clickedMovie) {
-        Context context = this;
-        Class destinationClass = MovieDetailActivity.class;
-        Intent intentToMovieDetail = new Intent(context, destinationClass);
-        intentToMovieDetail.putExtra("movie", clickedMovie);
-        startActivityForResult(intentToMovieDetail, REQUEST_CODE_MOVIE_DETAIL);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.movies_main, menu);
@@ -159,20 +156,22 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             case R.id.action_sort_popularity:
                 mMovieAdapter.setMovieData(new ArrayList<Movie>());
                 mScrollListener.resetState();
-                loadMovieData(MovieService.SORT_BY_POPULARITY,"1");
-                mCurrentSortingMethod = MovieService.SORT_BY_POPULARITY;
+                mMovieAdapter.setCurrentDatasetType(MovieAdapter.DATASET_LIST);
+                loadMovieData(SORT_BY_POPULARITY,"1");
+                mCurrentSortingMethod = SORT_BY_POPULARITY;
                 break;
             case R.id.action_sort_toprated :
                 mMovieAdapter.setMovieData(new ArrayList<Movie>());
                 mScrollListener.resetState();
-                loadMovieData(MovieService.SORT_BY_TOP_RATED,"1");
-                mCurrentSortingMethod = MovieService.SORT_BY_TOP_RATED;
+                mMovieAdapter.setCurrentDatasetType(MovieAdapter.DATASET_LIST);
+                loadMovieData(SORT_BY_TOP_RATED,"1");
+                mCurrentSortingMethod = SORT_BY_TOP_RATED;
                 break;
             case R.id.action_see_favorites:
-                mMovieAdapter.setMovieData(new ArrayList<Movie>());
                 mScrollListener.resetState();
-                loadMovieData(MovieService.SORT_BY_FAVORITES, "1");
-                mCurrentSortingMethod = MovieService.SORT_BY_FAVORITES;
+                mMovieAdapter.setCurrentDatasetType(MovieAdapter.DATASET_CURSOR);
+                loadMovieData(SORT_BY_FAVORITES, "1");
+                mCurrentSortingMethod = SORT_BY_FAVORITES;
                 break;
         }
 
@@ -190,30 +189,39 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     }
 
     @Override
-    public void processFinish(List<Movie> moviePage, Loader callerLoader) {
+    public void processFinish(Object data, Loader callerLoader) {
         setLoadingBarVisibility(false);
-        if(!moviePage.isEmpty()){
-            setErrorMessageVisibility(false);
+        if(data instanceof ArrayList) {
+            ArrayList<Movie> moviePage = (ArrayList<Movie>) data;
+            if (!moviePage.isEmpty()) {
+                setErrorMessageVisibility(false);
 //            Check if the data is already loaded
-            ArrayList<Movie> currentMovies = mMovieAdapter.getMovieData();
-            Movie checkMovie = moviePage.get(0);
-            boolean movieExists = false;
-            for(int i = 0; i < currentMovies.size(); i++){
-                if(currentMovies.get(i).getId() == checkMovie.getId()){
-                    movieExists = true;
-                    break;
+                ArrayList<Movie> currentMovies = mMovieAdapter.getMovieData();
+                Movie checkMovie = moviePage.get(0);
+                boolean movieExists = false;
+                for (int i = 0; i < currentMovies.size(); i++) {
+                    if (currentMovies.get(i).getId() == checkMovie.getId()) {
+                        movieExists = true;
+                        break;
+                    }
                 }
-            }
 //            Exit if the data is already loaded
-            if(movieExists) return;
+                if (movieExists) return;
 //            Check if movies are favorites
-            for (int i = 0; i < moviePage.size(); i++)
-                moviePage.get(i).setFavorite(DatabaseService.checkIsFavoriteMovie(moviePage.get(i), this));
-            currentMovies.addAll(moviePage);
+                for (int i = 0; i < moviePage.size(); i++)
+                    moviePage.get(i).setFavorite(DatabaseService.checkIsFavoriteMovie(moviePage.get(i), this));
+                currentMovies.addAll(moviePage);
 //            Insert movies on adapter with the correct favorite status
-            mMovieAdapter.setMovieData(currentMovies);
-        }else if (!mMovieAdapter.getMovieData().isEmpty()){
-            setErrorMessageVisibility(true);
+                mMovieAdapter.setMovieData(currentMovies);
+            } else if (!mMovieAdapter.getMovieData().isEmpty()) {
+                setErrorMessageVisibility(true);
+            }
+        }else if (data instanceof Cursor){
+            Cursor movieCursor = (Cursor) data;
+            if(movieCursor.getCount() > 0)
+                mMovieAdapter.swapCursor(movieCursor);
+            else
+                setErrorMessageVisibility(true);
         }
     }
 
@@ -223,34 +231,58 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         if(mCurrentSortingMethod != null){
             loadMovieData(mCurrentSortingMethod, "1");
         }else{
-            mCurrentSortingMethod = MovieService.SORT_BY_POPULARITY;
+            mCurrentSortingMethod = SORT_BY_POPULARITY;
             loadMovieData(mCurrentSortingMethod, "1");
         }
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private void loadMovieData(String sortingMethod, String page){
-//        Check internet connectivity
-        if(NetworkUtils.isOnline(this) || sortingMethod.equals(MovieService.SORT_BY_FAVORITES)) {
-            setErrorMessageVisibility(false);
-            setLoadingBarVisibility(true);
+        setErrorMessageVisibility(false);
+        setLoadingBarVisibility(true);
+        switch (sortingMethod){
+            case SORT_BY_POPULARITY: case SORT_BY_TOP_RATED:
+        //        Check internet connectivity
+                if(NetworkUtils.isOnline(this) || sortingMethod.equals(SORT_BY_FAVORITES)) {
+//                  Create bundle for loader
+                    Bundle movieBundle = new Bundle();
+                    movieBundle.putString(MovieAsyncLoader.KEY_SORTING_METHOD, sortingMethod);
+                    movieBundle.putString(MovieAsyncLoader.KEY_PAGE, page);
+                    initializeOrRestartLoader(ID_MOVIE_LOADER,movieBundle);
+                }else{
+                    setLoadingBarVisibility(false);
+                    setErrorMessageVisibility(true);
+                }
+                break;
+            case SORT_BY_FAVORITES:
+                initializeOrRestartLoader(ID_FAVORITES_LOADER,null);
+                break;
+            default:
+                throw new UnsupportedOperationException("Sorting method not supported yet.");
+        }
+    }
 
-//            Create bundle for loader
-            Bundle movieBundle = new Bundle();
-            movieBundle.putString(MovieService.KEY_SORTING_METHOD, sortingMethod);
-            movieBundle.putString(MovieService.KEY_PAGE, page);
-
-//           Initialize or restart loader
-            try{
-                if(getSupportLoaderManager().getLoader(ID_MOVIE_LOADER).isStarted())
-                    getSupportLoaderManager().restartLoader(ID_MOVIE_LOADER, movieBundle, mMovieServiceLoaderCallbacks);
-                else
-                    getSupportLoaderManager().initLoader(ID_MOVIE_LOADER, movieBundle, mMovieServiceLoaderCallbacks);
-            }catch (NullPointerException e){
-                getSupportLoaderManager().initLoader(ID_MOVIE_LOADER, movieBundle, mMovieServiceLoaderCallbacks);
-            }
-        }else{
-            setErrorMessageVisibility(true);
+    private void initializeOrRestartLoader(int loaderID, Bundle args){
+        android.support.v4.app.LoaderManager.LoaderCallbacks callbacks;
+        switch (loaderID){
+            case ID_MOVIE_LOADER:
+                callbacks = mMovieAsyncLoaderLoaderCallbacks;
+                getSupportLoaderManager().destroyLoader(ID_FAVORITES_LOADER);
+                break;
+            case ID_FAVORITES_LOADER:
+                callbacks = mFavoriteServiceLoaderCallbacks;
+                getSupportLoaderManager().destroyLoader(ID_MOVIE_LOADER);
+                break;
+            default:
+                throw new UnsupportedOperationException("Load does not exist!");
+        }
+        try{
+            if(getSupportLoaderManager().getLoader(loaderID).isStarted())
+                getSupportLoaderManager().restartLoader(loaderID, args, callbacks);
+            else
+                getSupportLoaderManager().initLoader(loaderID, args, callbacks);
+        }catch (NullPointerException e){
+            getSupportLoaderManager().initLoader(loaderID, args, callbacks);
         }
     }
 
@@ -270,5 +302,14 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         }else{
             mLoadingBar.setVisibility(View.INVISIBLE);
         }
+    }
+
+    @Override
+    public void onClick(Movie clickedMovie) {
+        Context context = this;
+        Class destinationClass = MovieDetailActivity.class;
+        Intent intentToMovieDetail = new Intent(context, destinationClass);
+        intentToMovieDetail.putExtra("movie", clickedMovie);
+        startActivityForResult(intentToMovieDetail, REQUEST_CODE_MOVIE_DETAIL);
     }
 }

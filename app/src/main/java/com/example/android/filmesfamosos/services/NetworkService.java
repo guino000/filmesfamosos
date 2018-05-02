@@ -7,8 +7,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-abstract class NetworkService {
-    static String getResponseFromHttpUrl(URL url) throws IOException {
+public abstract class NetworkService {
+    public static String getResponseFromHttpUrl(URL url) throws IOException {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(url)

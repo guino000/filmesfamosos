@@ -1,4 +1,4 @@
-package com.example.android.filmesfamosos.services;
+package com.example.android.filmesfamosos.loaders;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -12,6 +12,7 @@ import android.support.v4.content.Loader;
 import com.example.android.filmesfamosos.R;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.model.Trailer;
+import com.example.android.filmesfamosos.services.NetworkService;
 import com.example.android.filmesfamosos.utilities.App;
 import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
 
@@ -26,7 +27,7 @@ import java.util.List;
  */
 
 //This class is used to get Trailers data of a given movie from the API
-public class TrailerService implements LoaderManager.LoaderCallbacks<List<Trailer>>{
+public class TrailerAsyncLoader implements LoaderManager.LoaderCallbacks<List<Trailer>>{
     //    Keys
     public static final String KEY_MOVIE_ID = "movie_id";
 
@@ -34,7 +35,7 @@ public class TrailerService implements LoaderManager.LoaderCallbacks<List<Traile
     private AsyncTaskDelegate delegate;
     private Context mContext;
 
-    public TrailerService(AsyncTaskDelegate<ArrayList> responder, Context context){
+    public TrailerAsyncLoader(AsyncTaskDelegate<ArrayList> responder, Context context){
         this.delegate = responder;
         this.mContext = context;
     }

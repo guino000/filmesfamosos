@@ -1,6 +1,7 @@
 package com.example.android.filmesfamosos.adapters;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -9,24 +10,46 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.android.filmesfamosos.R;
+import com.example.android.filmesfamosos.model.MoviesContract;
 import com.example.android.filmesfamosos.model.Review;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewAdapterViewHolder>{
 
+    private Cursor mReviewCursor;
     private ArrayList<Review> mReviewData;
+    private int mCurrentDatasetType;
+//    Dataset type keys
+    public static final int DATASET_LIST = 0;
+    public static final int DATASET_CURSOR = 1;
+
+    public ReviewAdapter(int currentDataset){
+        mCurrentDatasetType = currentDataset;
+    }
+
+    public void swapCursor(Cursor newCursor){
+        mReviewCursor = newCursor;
+        notifyDataSetChanged();
+    }
 
     public ArrayList<Review> getReviewData(){
         return mReviewData;
     }
 
-    public void setReviewData(ArrayList<Review> newReviews){
-        if(newReviews == null)
-            mReviewData = new ArrayList<>();
-        else
-            mReviewData = newReviews;
+    public void setReviewData(ArrayList<Review> newData){
+        mReviewData = newData;
         notifyDataSetChanged();
+    }
+
+    public void setCurrentDatasetType(int datasetType){
+        mCurrentDatasetType = datasetType;
+    }
+
+    public int getCurrentDatasetType(){
+        return mCurrentDatasetType;
     }
 
     @NonNull
@@ -39,15 +62,36 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewAdap
 
     @Override
     public void onBindViewHolder(@NonNull ReviewAdapterViewHolder holder, int position) {
-        Review selectedReview = mReviewData.get(position);
-        holder.tvReviewAuthor.setText(selectedReview.getAuthor());
-        holder.tvReviewContent.setText(selectedReview.getReviewContent());
+        switch (mCurrentDatasetType){
+            case DATASET_CURSOR:
+                mReviewCursor.moveToPosition(position);
+                holder.tvReviewAuthor.setText(mReviewCursor.getString(
+                        mReviewCursor.getColumnIndex(MoviesContract.ReviewEntry.COLUMN_AUTHOR)));
+                holder.tvReviewContent.setText(mReviewCursor.getString(
+                        mReviewCursor.getColumnIndex(MoviesContract.ReviewEntry.COLUMN_CONTENT)));
+                break;
+            case DATASET_LIST:
+                Review currentReview = mReviewData.get(position);
+                holder.tvReviewAuthor.setText(currentReview.getAuthor());
+                holder.tvReviewContent.setText(currentReview.getReviewContent());
+                break;
+            default:
+                throw new UnsupportedOperationException("Not supported yet.");
+        }
     }
 
     @Override
     public int getItemCount() {
-        if(mReviewData == null) return 0;
-        return mReviewData.size();
+        switch (mCurrentDatasetType){
+            case DATASET_LIST:
+                if(mReviewData == null) return 0;
+                return mReviewData.size();
+            case DATASET_CURSOR:
+                if(mReviewCursor == null) return 0;
+                return mReviewCursor.getCount();
+            default:
+                return 0;
+        }
     }
 
     public class ReviewAdapterViewHolder extends RecyclerView.ViewHolder{

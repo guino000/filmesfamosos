@@ -22,6 +22,10 @@
         </activity>
         <activity android:name=".MovieDetailActivity"
             android:screenOrientation="portrait"/>
+        <provider
+            android:authorities="com.example.android.filmesfamosos"
+            android:name=".model.MovieProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>

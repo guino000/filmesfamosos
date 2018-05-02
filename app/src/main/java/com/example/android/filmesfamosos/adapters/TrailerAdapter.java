@@ -1,6 +1,8 @@
 package com.example.android.filmesfamosos.adapters;
 
+import android.content.ContentUris;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -13,35 +15,52 @@ import android.widget.VideoView;
 
 import com.example.android.filmesfamosos.R;
 import com.example.android.filmesfamosos.model.Movie;
+import com.example.android.filmesfamosos.model.MoviesContract;
 import com.example.android.filmesfamosos.model.Trailer;
+import com.example.android.filmesfamosos.utilities.ModelUtils;
 
 import java.net.URI;
 import java.util.ArrayList;
 
 public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerAdapterViewHolder> {
 
+    private Cursor mTrailerCursor;
     private ArrayList<Trailer> mTrailerData;
     private TrailerAdapterClickHandler mClickHandler;
+    private int mCurrentDatasetType;
+//    Dataset type keys
+    public static final int DATASET_LIST = 0;
+    public static final int DATASET_CURSOR = 1;
 
     public interface TrailerAdapterClickHandler{
         void onClick(Trailer clickedTrailer);
     }
 
-    public TrailerAdapter(TrailerAdapterClickHandler clickHandler){
-        mTrailerData = new ArrayList<>();
+    public TrailerAdapter(TrailerAdapterClickHandler clickHandler, int currentDataset){
         mClickHandler = clickHandler;
+        mCurrentDatasetType = currentDataset;
     }
 
-    public void setTrailerData(ArrayList<Trailer> trailerData){
-        if(trailerData == null)
-            mTrailerData = new ArrayList<>();
-        else
-            mTrailerData = trailerData;
+    public void swapCursor(Cursor newCursor){
+        mTrailerCursor = newCursor;
         notifyDataSetChanged();
     }
 
-    public ArrayList<Trailer> getTrailerData(){
+    public void setTrailerData(ArrayList<Trailer> newData){
+        mTrailerData = newData;
+        notifyDataSetChanged();
+    }
+
+    public ArrayList<Trailer> getTrailerData() {
         return mTrailerData;
+    }
+
+    public void setCurrentDatasetType(int datasetType){
+        mCurrentDatasetType = datasetType;
+    }
+
+    public int getCurrentDatasetType(){
+        return mCurrentDatasetType;
     }
 
     @NonNull
@@ -60,15 +79,33 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerA
 
     @Override
     public void onBindViewHolder(@NonNull TrailerAdapterViewHolder holder, int position) {
-        Trailer selectedTrailer = mTrailerData.get(position);
-//        Set Trailer Title to text view
-        holder.mTrailerNameTextView.setText(selectedTrailer.getName());
+        switch (mCurrentDatasetType){
+            case DATASET_LIST:
+                Trailer currentTrailer = mTrailerData.get(position);
+                holder.mTrailerNameTextView.setText(currentTrailer.getName());
+                break;
+            case DATASET_CURSOR:
+                mTrailerCursor.moveToPosition(position);
+                holder.mTrailerNameTextView.setText(mTrailerCursor.getString(
+                        mTrailerCursor.getColumnIndex(MoviesContract.TrailerEntry.COLUMN_NAME)));
+                break;
+            default:
+                throw new UnsupportedOperationException("Not supported yet.");
+        }
     }
 
     @Override
     public int getItemCount() {
-        if(mTrailerData == null) return 0;
-        return mTrailerData.size();
+        switch (mCurrentDatasetType){
+            case DATASET_LIST:
+                if(mTrailerData == null) return 0;
+                return mTrailerData.size();
+            case DATASET_CURSOR:
+                if(mTrailerCursor == null) return 0;
+                return mTrailerCursor.getCount();
+            default:
+                return 0;
+        }
     }
 
     public class TrailerAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -86,8 +123,18 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.TrailerA
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
-            Trailer clickedTrailer = mTrailerData.get(position);
-            mClickHandler.onClick(clickedTrailer);
+
+            switch (mCurrentDatasetType){
+                case DATASET_LIST:
+                    mClickHandler.onClick(mTrailerData.get(position));
+                    break;
+                case DATASET_CURSOR:
+                    mTrailerCursor.moveToPosition(position);
+                    mClickHandler.onClick(ModelUtils.getTrailerFromCursor(mTrailerCursor));
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Not supported yet.");
+            }
         }
     }
 }

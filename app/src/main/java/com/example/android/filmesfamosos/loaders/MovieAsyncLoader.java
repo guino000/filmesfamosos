@@ -1,4 +1,4 @@
-package com.example.android.filmesfamosos.services;
+package com.example.android.filmesfamosos.loaders;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -11,9 +11,12 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 
+import com.example.android.filmesfamosos.MainActivity;
 import com.example.android.filmesfamosos.R;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.model.Movie;
+import com.example.android.filmesfamosos.services.DatabaseService;
+import com.example.android.filmesfamosos.services.NetworkService;
 import com.example.android.filmesfamosos.utilities.App;
 import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
 
@@ -27,20 +30,17 @@ import java.util.List;
  * Created by Guilherme Canalli on 2/28/2018.
  */
 
-public class MovieService implements LoaderManager.LoaderCallbacks<List<Movie>>{
+public class MovieAsyncLoader implements LoaderManager.LoaderCallbacks<List<Movie>>{
 //    keys
     public static final String KEY_SORTING_METHOD = "sorting_method";
     public static final String KEY_PAGE = "page";
     private static final String KEY_APIKEY = "api_key";
-    public static final String SORT_BY_POPULARITY = "popular";
-    public static final String SORT_BY_TOP_RATED = "top_rated";
-    public static final String SORT_BY_FAVORITES = "favorites";
 
     private AsyncTaskDelegate<List<Movie>> delegate;
     private Context mContext;
     private long mCurrentPage;
 
-    public MovieService(AsyncTaskDelegate<List<Movie>> responder, Context context){
+    public MovieAsyncLoader(AsyncTaskDelegate<List<Movie>> responder, Context context){
         delegate = responder;
         mContext = context;
     }
@@ -91,17 +91,10 @@ public class MovieService implements LoaderManager.LoaderCallbacks<List<Movie>>{
                     return Collections.emptyList();
 
                 try{
-                    if(sorting.equals(SORT_BY_FAVORITES)){
-                        Movie[] queryMovies = DatabaseService.queryMovies(mContext);
-                        ArrayList<Movie> moviesList = new ArrayList<>();
-                        Collections.addAll(moviesList, queryMovies);
-                        return moviesList;
-                    }else {
-                        String apiKey = App.getContext().getString(R.string.themoviedb);
-                        URL moviesRequestUrl = buildURL(sorting, page, apiKey);
-                        String jsonMovieResponse = NetworkService.getResponseFromHttpUrl(moviesRequestUrl);
-                        return MovieJsonUtils.getMoviesFromJson(jsonMovieResponse,mContext);
-                    }
+                    String apiKey = App.getContext().getString(R.string.themoviedb);
+                    URL moviesRequestUrl = buildURL(sorting, page, apiKey);
+                    String jsonMovieResponse = NetworkService.getResponseFromHttpUrl(moviesRequestUrl);
+                    return MovieJsonUtils.getMoviesFromJson(jsonMovieResponse,mContext);
                 }catch (Exception e){
                     e.printStackTrace();
                     return Collections.emptyList();

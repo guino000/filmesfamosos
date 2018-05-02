@@ -1,4 +1,4 @@
-package com.example.android.filmesfamosos.services;
+package com.example.android.filmesfamosos.loaders;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -13,6 +13,7 @@ import android.support.v4.content.Loader;
 import com.example.android.filmesfamosos.R;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.model.Review;
+import com.example.android.filmesfamosos.services.NetworkService;
 import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
 
 import java.net.MalformedURLException;
@@ -20,7 +21,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReviewService implements LoaderManager.LoaderCallbacks<List<Review>>{
+public class ReviewAsyncLoader implements LoaderManager.LoaderCallbacks<List<Review>>{
 //    Keys for themoviedb api URL parameters
     private static final String KEY_APIKEY = "api_key";
     private static final String KEY_PAGE = "page";
@@ -31,7 +32,7 @@ public class ReviewService implements LoaderManager.LoaderCallbacks<List<Review>
     private AsyncTaskDelegate mReviewDelegate;
     private Context mContext;
 
-    public ReviewService(AsyncTaskDelegate delegate, Context context){
+    public ReviewAsyncLoader(AsyncTaskDelegate delegate, Context context){
         mReviewDelegate = delegate;
         mContext = context;
     }
