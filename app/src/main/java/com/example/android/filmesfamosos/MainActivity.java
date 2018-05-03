@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
     private static final String SS_KEY_CURRENT_MOVIES = "current_movies";
     private static final String SS_KEY_SCROLL_LISTENER = "scroll_listener";
     private static final String SS_KEY_SCROLL_POSITION = "scroll_position";
+    private static final String SS_KEY_DATASET_TYPE = "dataset_type";
 //    Sorting method keys
     public static final String SORT_BY_POPULARITY = "popular";
     public static final String SORT_BY_TOP_RATED = "top_rated";
@@ -93,7 +94,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         mScrollListener = new EndlessRecyclerViewScrollListener((GridLayoutManager) mRvMiniaturesGrid.getLayoutManager()) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                loadMovieData(mCurrentSortingMethod, String.valueOf(page) + 1);
+                if(!mCurrentSortingMethod.equals(SORT_BY_FAVORITES))
+                    loadMovieData(mCurrentSortingMethod, String.valueOf(page) + 1);
             }
         };
         mRvMiniaturesGrid.addOnScrollListener(mScrollListener);
@@ -104,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             mMovieAdapter.setMovieData(savedInstanceState.<Movie>getParcelableArrayList(SS_KEY_CURRENT_MOVIES));
             mScrollListener.setState(savedInstanceState.getBundle(SS_KEY_SCROLL_LISTENER));
             mRvMiniaturesGrid.scrollToPosition(savedInstanceState.getInt(SS_KEY_SCROLL_POSITION));
+            mMovieAdapter.setCurrentDatasetType(savedInstanceState.getInt(SS_KEY_DATASET_TYPE));
         }else {
             mCurrentSortingMethod = SORT_BY_POPULARITY;
             mScrollListener.resetState();
@@ -111,16 +114,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
 
 //        Initialize Movies LoaderCallbacks
         mMovieAsyncLoaderLoaderCallbacks = new MovieAsyncLoader(this, this);
-        mFavoriteServiceLoaderCallbacks  = new MovieCursorLoader(this,this);
+        mFavoriteServiceLoaderCallbacks  = new MovieCursorLoader(this,this, mMovieAdapter);
         loadMovieData(mCurrentSortingMethod, "1");
-    }
-
-    @Override
-    protected void onResume() {
-//        Refresh favorite movies view in case user has deleted a favorite
-        if(mCurrentSortingMethod.equals(SORT_BY_FAVORITES))
-            refreshMovieData();
-        super.onResume();
     }
 
     @Override
@@ -130,13 +125,15 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             case REQUEST_CODE_MOVIE_DETAIL:
                 if(resultCode==RESULT_OK){
 //                    Get the movie returned from detail activity and update the favorite status in the adapter data
-                    Movie retMovie = data.getParcelableExtra(getString(R.string.intentres_name_movie));
-                    ArrayList<Movie> currentMovies = mMovieAdapter.getMovieData();
-                    for(int i = 0; i < currentMovies.size(); i++){
-                        if(currentMovies.get(i).getId() == retMovie.getId())
-                            currentMovies.set(i, retMovie);
+                    if(mMovieAdapter.getCurrentDatasetType() == MovieAdapter.DATASET_LIST) {
+                        Movie retMovie = data.getParcelableExtra(getString(R.string.intentres_name_movie));
+                        ArrayList<Movie> currentMovies = mMovieAdapter.getMovieData();
+                        for (int i = 0; i < currentMovies.size(); i++) {
+                            if (currentMovies.get(i).getId() == retMovie.getId())
+                                currentMovies.set(i, retMovie);
+                        }
+                        mMovieAdapter.setMovieData(currentMovies);
                     }
-                    mMovieAdapter.setMovieData(currentMovies);
                 }
         }
     }
@@ -156,20 +153,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
             case R.id.action_sort_popularity:
                 mMovieAdapter.setMovieData(new ArrayList<Movie>());
                 mScrollListener.resetState();
-                mMovieAdapter.setCurrentDatasetType(MovieAdapter.DATASET_LIST);
                 loadMovieData(SORT_BY_POPULARITY,"1");
                 mCurrentSortingMethod = SORT_BY_POPULARITY;
                 break;
             case R.id.action_sort_toprated :
                 mMovieAdapter.setMovieData(new ArrayList<Movie>());
                 mScrollListener.resetState();
-                mMovieAdapter.setCurrentDatasetType(MovieAdapter.DATASET_LIST);
                 loadMovieData(SORT_BY_TOP_RATED,"1");
                 mCurrentSortingMethod = SORT_BY_TOP_RATED;
                 break;
             case R.id.action_see_favorites:
                 mScrollListener.resetState();
-                mMovieAdapter.setCurrentDatasetType(MovieAdapter.DATASET_CURSOR);
                 loadMovieData(SORT_BY_FAVORITES, "1");
                 mCurrentSortingMethod = SORT_BY_FAVORITES;
                 break;
@@ -185,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
         outState.putBundle(SS_KEY_SCROLL_LISTENER,mScrollListener.getState());
         outState.putInt(SS_KEY_SCROLL_POSITION,
                 ((GridLayoutManager) mRvMiniaturesGrid.getLayoutManager()).findLastVisibleItemPosition());
+        outState.putInt(SS_KEY_DATASET_TYPE,mMovieAdapter.getCurrentDatasetType());
         super.onSaveInstanceState(outState);
     }
 
@@ -213,26 +208,40 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.Movi
                 currentMovies.addAll(moviePage);
 //            Insert movies on adapter with the correct favorite status
                 mMovieAdapter.setMovieData(currentMovies);
+                mMovieAdapter.setCurrentDatasetType(MovieAdapter.DATASET_LIST);
             } else if (!mMovieAdapter.getMovieData().isEmpty()) {
                 setErrorMessageVisibility(true);
             }
         }else if (data instanceof Cursor){
             Cursor movieCursor = (Cursor) data;
-            if(movieCursor.getCount() > 0)
+            if(movieCursor.getCount() > 0) {
                 mMovieAdapter.swapCursor(movieCursor);
+                mMovieAdapter.setCurrentDatasetType(MovieAdapter.DATASET_CURSOR);
+            }
             else
                 setErrorMessageVisibility(true);
         }
     }
 
     private void refreshMovieData(){
-        mMovieAdapter.setMovieData(new ArrayList<Movie>());
-        mScrollListener.resetState();
-        if(mCurrentSortingMethod != null){
-            loadMovieData(mCurrentSortingMethod, "1");
-        }else{
-            mCurrentSortingMethod = SORT_BY_POPULARITY;
-            loadMovieData(mCurrentSortingMethod, "1");
+        switch (mMovieAdapter.getCurrentDatasetType()){
+            case MovieAdapter.DATASET_LIST:
+                mMovieAdapter.setMovieData(new ArrayList<Movie>());
+                mScrollListener.resetState();
+                if(mCurrentSortingMethod != null){
+                    loadMovieData(mCurrentSortingMethod, "1");
+                }else{
+                    mCurrentSortingMethod = SORT_BY_POPULARITY;
+                    loadMovieData(mCurrentSortingMethod, "1");
+                }
+                break;
+            case MovieAdapter.DATASET_CURSOR:
+                mMovieAdapter.swapCursor(null);
+                mScrollListener.resetState();
+                loadMovieData(SORT_BY_FAVORITES,"1");
+                break;
+            default:
+                throw new IllegalArgumentException("Not supported yet.");
         }
         mSwipeRefreshLayout.setRefreshing(false);
     }

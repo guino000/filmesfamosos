@@ -4,25 +4,21 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 
-import com.example.android.filmesfamosos.MainActivity;
 import com.example.android.filmesfamosos.R;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.model.Movie;
-import com.example.android.filmesfamosos.services.DatabaseService;
 import com.example.android.filmesfamosos.services.NetworkService;
 import com.example.android.filmesfamosos.utilities.App;
 import com.example.android.filmesfamosos.utilities.MovieJsonUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 

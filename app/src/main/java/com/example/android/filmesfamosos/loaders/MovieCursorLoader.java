@@ -1,6 +1,5 @@
 package com.example.android.filmesfamosos.loaders;
 
-import android.content.ContentProvider;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -11,6 +10,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 
+import com.example.android.filmesfamosos.adapters.MovieAdapter;
 import com.example.android.filmesfamosos.interfaces.AsyncTaskDelegate;
 import com.example.android.filmesfamosos.model.MoviesContract;
 
@@ -18,12 +18,14 @@ public class MovieCursorLoader implements LoaderManager.LoaderCallbacks<Cursor> 
 
     private Context mContext;
     private AsyncTaskDelegate<Cursor> mDelegate;
+    private MovieAdapter mMovieAdapter;
 //    Args Keys
     public static final String KEY_BUNDLE_MOVIE_ID = "movie_id";
 
-    public MovieCursorLoader(Context context, AsyncTaskDelegate<Cursor> delegate){
+    public MovieCursorLoader(Context context, AsyncTaskDelegate<Cursor> delegate, MovieAdapter adapter){
         mContext = context;
         mDelegate = delegate;
+        mMovieAdapter = adapter;
     }
 
     @NonNull
@@ -53,6 +55,6 @@ public class MovieCursorLoader implements LoaderManager.LoaderCallbacks<Cursor> 
 
     @Override
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-        mDelegate.processFinish(null,loader);
+        mMovieAdapter.swapCursor(null);
     }
 }

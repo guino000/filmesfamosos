@@ -7,9 +7,6 @@ import android.os.Parcelable;
 
 import com.example.android.filmesfamosos.R;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 public class Trailer implements Parcelable{
     private String mId;
     private String mKey;

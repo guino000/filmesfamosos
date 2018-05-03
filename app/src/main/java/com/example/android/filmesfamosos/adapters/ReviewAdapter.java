@@ -14,8 +14,6 @@ import com.example.android.filmesfamosos.model.MoviesContract;
 import com.example.android.filmesfamosos.model.Review;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ReviewAdapterViewHolder>{
 

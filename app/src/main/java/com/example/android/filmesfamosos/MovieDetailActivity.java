@@ -35,9 +35,7 @@ import com.squareup.picasso.Picasso;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 //TODO: Adapt this activity to use the new dual dataset adapter
 public class MovieDetailActivity extends AppCompatActivity implements
@@ -122,9 +120,7 @@ public class MovieDetailActivity extends AppCompatActivity implements
             mMovieDescriptionTextView.setText(mCurrentMovie.getOverview());
             try {
                 Date date = new SimpleDateFormat(getString(R.string.movieapi_date_format)).parse(mCurrentMovie.getReleaseDate());
-                String formattedDate = new SimpleDateFormat(getString(R.string.date_short_date_format)).format(date);
-                String releaseDateWithLabel = formattedDate;
-                mReleaseDateTextView.setText(releaseDateWithLabel);
+                mReleaseDateTextView.setText(new SimpleDateFormat(getString(R.string.date_short_date_format)).format(date));
             } catch (ParseException e) {
                 e.printStackTrace();
             }

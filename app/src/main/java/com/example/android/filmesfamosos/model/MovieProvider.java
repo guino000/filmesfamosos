@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -157,6 +156,7 @@ public class MovieProvider extends ContentProvider {
                 deletedCount = db.delete(MoviesContract.MovieEntry.TABLE_NAME,
                         MoviesContract.MovieEntry._ID + " = ?",
                         new String[]{movieID});
+                break;
             default:
                 return 0;
         }

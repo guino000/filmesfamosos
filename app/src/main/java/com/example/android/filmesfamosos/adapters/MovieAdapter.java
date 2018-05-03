@@ -2,6 +2,7 @@ package com.example.android.filmesfamosos.adapters;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
  * Created by Guilherme Canalli on 2/15/2018.
  */
 
-public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder> {
+public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapterViewHolder>{
 
     private ArrayList<Movie> mMovieData;
     private Cursor mMovieCursor;
@@ -78,8 +79,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
         }
     }
 
+    @NonNull
     @Override
-    public MovieAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MovieAdapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         int layoutIdForGridItem = R.layout.main_movie_miniature;
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -90,7 +92,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieAdapter
     }
 
     @Override
-    public void onBindViewHolder(final MovieAdapterViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MovieAdapterViewHolder holder, int position) {
         switch (mCurrentDatasetType){
             case DATASET_LIST:
                 Movie movie = mMovieData.get(position);
